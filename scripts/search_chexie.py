@@ -156,6 +156,7 @@ def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, 
         seen.add(idx)
         row = meta[idx]
         source = source_of(row)
+        source["url"] = fix_url(source)
         source_key = (
             str(source.get("board") or ""),
             str(source.get("tid") or source.get("title") or ""),
@@ -269,11 +270,27 @@ def info() -> dict[str, Any]:
     }
 
 
+def fix_url(source: dict[str, Any]) -> str:
+    """Generate a correct, clickable URL using p=1.
+    The stored URL uses (floor-1)//12+1 for page number, which is unreliable
+    because floor numbers in the metadata are inflated and don't match
+    the actual pagination of each thread. Always link to p=1 instead."""
+    bid = source.get("bid", 1)
+    tid = source.get("tid", 0)
+    base = f"https://www.chexie.net/bbs/content/index.php?bid={bid}&tid={tid}&p=1"
+    floor = source.get("floor")
+    if floor:
+        return f"{base}#第{floor}楼"
+    return base
+
+
 def cite(source: dict[str, Any]) -> str:
     label = f"｜{source.get('source_label')}" if source.get("source_label") else ""
+    url = fix_url(source)
     return (
         f"【{source.get('board', '未知版面')}】《{source.get('title', '未知标题')}》"
-        f"第{source.get('floor', '?')}楼{label}"
+        f"第{source.get('floor', '?')}楼{label}\n"
+        f"  链接: {url}"
     )
 
 
@@ -288,7 +305,6 @@ def print_human(payload: dict[str, Any]) -> None:
         )
         print(cite(source))
         print(f"作者: {source.get('author')} | 时间: {source.get('time')}")
-        print(f"链接: {source.get('url')}")
         print(item["text"][:1200].strip())
         print()
 

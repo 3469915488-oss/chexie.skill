@@ -189,7 +189,7 @@ def thread_info(chunks: list[dict]) -> dict:
         "date": m.get("thread_date", ""),
         "bid": m.get("bid", ""),
         "board": m.get("board", ""),
-        "url": m.get("url", "").split("&p=")[0] if m.get("url") else "",
+        "url": f"https://www.chexie.net/bbs/content/index.php?bid={m.get('bid',1)}&tid={m.get('tid',0)}&p=1",
         "source_label": m.get("source_label", ""),
     }
 

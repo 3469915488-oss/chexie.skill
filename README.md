@@ -27,6 +27,7 @@
 
 ```
 用户提问 → 向量检索 (FAISS) → 关键词重排序 → 召回 Top-K 结果 → AI 依据来源回答
+         ↕ 深度复盘（--pipeline）：多查询扩展 → BM25 混合检索 → 全量帖子拉取 → 内容过滤 → 三层输出
 ```
 
 - **嵌入模型**：`shibing624/text2vec-base-chinese`（中文语义匹配）
@@ -39,11 +40,26 @@
 
 ## 快速使用
 
-### 命令行直接检索
+### CLI 快速检索
 
 ```bash
-python search_chexie.py "远征报名流程" --top-k 8 --json
+python scripts/search_chexie.py "远征报名流程" --top-k 8 --json
 ```
+
+### CLI 深度复盘检索
+
+适用于"某次拉练出了什么问题""怎么解决的""有什么经验教训"这类回溯性问题。
+管线自动识别目标帖子、提取问题与解决方案、匹配同期和历年对照。
+
+```bash
+# 首次使用需先构建 BM25 关键词索引（约 2.5 分钟，仅一次）
+python scripts/build_bm25.py
+
+# 深度检索
+python scripts/search_chexie.py --pipeline "25双日白河A组出现了什么问题"
+```
+
+输出三层：目标拉练全貌（问题+方案+反思）→ 同期对照 → 往年经验。每条带原文链接。
 
 参数：
 
@@ -54,6 +70,9 @@ python search_chexie.py "远征报名流程" --top-k 8 --json
 | `--candidate-k` | 候选池大小（默认 top-k × 30） |
 | `--json` | JSON 格式输出，含完整来源字段 |
 | `--info` | 查看索引状态 |
+| `--pipeline` / `-p` | 增强管线模式（深度回溯检索 + 内容过滤） |
+| `--bm25` | 启用 BM25 关键词搜索（需先运行 build_bm25.py） |
+| `--verbose` / `-v` | 详细输出（管线诊断信息） |
 
 ### Top-K 调优建议
 
@@ -103,12 +122,19 @@ codex exec "用 chexie 知识库查一下往年远征路线选择"
 
 ### 方式一：完整包下载
 
-从 GitHub Releases 下载 `chexie.skill.zip`，解压到 AI Agent 的 skills 目录。
+从 GitHub Releases 下载 `chexie.skill.zip`，解压到 AI Agent 的 skills 目录。  
+**数据文件**另从 Releases 下载 `chexie_data.tar.gz` 解压到同一目录。
 
 ### 方式二：Git Clone
 
 ```bash
 git clone https://github.com/3469915488-oss/chexie.skill.git
+cd chexie.skill
+# 下载并解压数据文件
+wget <release-url>/chexie_data.tar.gz
+tar -xzf chexie_data.tar.gz
+# 首次构建 BM25 索引（可选，增强搜索用）
+python scripts/build_bm25.py
 ```
 
 ### 方式三：一键安装（Hermes）
@@ -125,6 +151,8 @@ Python ≥ 3.9，依赖：
 faiss-cpu>=1.7.4
 sentence-transformers>=2.2.0
 numpy>=1.21.0
+jieba>=0.42.1
+rank-bm25>=0.2.2
 ```
 
 模型首次运行自动下载（约 500MB），之后离线使用。国内下载使用 HuggingFace 镜像 `hf-mirror.com`。
@@ -136,16 +164,23 @@ numpy>=1.21.0
 ```
 chexie.skill/
 ├── SKILL.md                  # Hermes Agent Skill 定义
+├── README.md                 # 本文件
+├── AGENTS.md                 # Claude Code / Codex CLI 配置
+├── faiss_index.bin           # FAISS 向量索引（109527 条）
+├── faiss_meta.jsonl          # 元数据（帖子标题/作者/链接）
+├── bm25_index.jsonl          # BM25 关键词索引缓存（可选）
+├── build_bm25.py             # BM25 索引构建脚本
 ├── scripts/
-│   ├── search_chexie.py      # 检索入口（自动检测本地/远程）
-│   └── server_search_chexie.py  # 后端检索引擎
+│   ├── search_chexie.py      # 检索入口（快速搜索 + 深度复盘管线）
+│   ├── server_search_chexie.py  # 后端检索引擎
+│   ├── pipeline.py           # 增强管线（内容过滤 + 三层输出）
+│   └── build_bm25.py         # BM25 索引构建
 ├── references/
 │   ├── answer-format.md      # 回答模板与纪律
 │   └── source-schema.md      # 检索结果字段说明
-├── AGENTS.md                 # Claude Code / Codex CLI 配置
 ├── agents/
 │   └── openai.yaml           # OpenAI GPT Action 配置模板
-└── README.md                 # 本文件
+└── ...
 ```
 
 ---

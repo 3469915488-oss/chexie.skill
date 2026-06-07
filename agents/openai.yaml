@@ -1,0 +1,7 @@
+interface:
+  display_name: "车协知识库"
+  short_description: "检索北大车协往年帖子并按楼层溯源回答"
+  brand_color: "#2563EB"
+  default_prompt: "Use $chexie-knowledge to查询车协往年怎么处理一个活动组织问题，并给出楼层来源。"
+policy:
+  allow_implicit_invocation: true

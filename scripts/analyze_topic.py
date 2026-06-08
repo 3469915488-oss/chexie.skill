@@ -22,6 +22,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 ROOT = Path(__file__).resolve().parent.parent
 JARGON_PATH = ROOT / "jargon.yaml"
 EVENTS_PATH = ROOT / "events.yaml"
+
+# NOTE: events.yaml = activity type schema (拉练/执委会/etc.)
+# For controversy event lookups, use scripts/controversy_lookup.py
+# which enforces: only candidate tids returned, never post text.
+# Controversy index is SECONDARY — always verify facts against original chunks.
+# NOTE: events.yaml = activity type schema (拉练/执委会/etc.)
+# For controversy event lookups, use scripts/controversy_lookup.py
+# which enforces: only candidate tids returned, never post text.
+# Controversy index is SECONDARY — always verify facts against original chunks.
 ENTITIES_DIR = ROOT / "entities"
 PROMPTS_DIR = ROOT / "prompts"
 

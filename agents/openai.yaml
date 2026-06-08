@@ -1,7 +1,394 @@
-interface:
-  display_name: "车协知识库"
-  short_description: "检索北大车协往年帖子并按楼层溯源回答"
-  brand_color: "#2563EB"
-  default_prompt: "Use $chexie-knowledge to查询车协往年怎么处理一个活动组织问题，并给出楼层来源。"
-policy:
-  allow_implicit_invocation: true
+# Chexie Knowledge — GPT Action Specification (OpenAPI 3.0)
+# Import this file into an OpenAI Custom GPT's Action configuration.
+
+openapi: "3.0.3"
+info:
+  title: Chexie Knowledge API
+  version: "1.0.0"
+  description: >
+    北大车协知识库检索 API。提供两种检索模式：
+    - **search**：向量语义搜索 + 关键词加权，返回带 source_id 的原文片段。
+    - **controversy-lookup**：争议事件索引查找，仅返回候选 tid 列表及事件 metadata，
+      事实细节必须通过 search 端点回查原帖。
+
+    所有返回结果中的 source_id 为强制字段，text 字段最长 500 字符。
+
+servers:
+  - url: https://api.example.com/chexie
+    description: Production server (configurable)
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /search:
+    post:
+      operationId: searchChexie
+      summary: 语义检索车协帖子
+      description: >
+        对车协论坛帖子进行向量语义检索，可选关键词加权 rerank。
+        返回 top_k 条结果，每条包含 source_id、文本片段（≤500 字符）及完整来源元数据。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
+            example:
+              query: "暑期选拔流程"
+              top_k: 8
+              mode: "fast"
+              json: true
+      responses:
+        "200":
+          description: 检索成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /controversy-lookup:
+    post:
+      operationId: controversyLookup
+      summary: 争议事件索引查找
+      description: >
+        在争议事件索引中查找匹配的事件。仅返回候选 tid 和事件 metadata
+        （name/period/summary/viewpoints），不含事实细节。
+        事实必须通过 /search 端点回查原帖获取。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ControversyLookupRequest"
+            example:
+              query: "暑期选拔"
+              top_k: 3
+      responses:
+        "200":
+          description: 查找成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ControversyLookupResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: >
+        API 密钥，通过 X-API-Key 请求头传递。
+        每个 API key 限速 10 请求/分钟。
+
+  schemas:
+    SearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: 检索查询文本
+          minLength: 1
+          maxLength: 500
+          example: "暑期选拔流程"
+        top_k:
+          type: integer
+          description: 返回结果数量
+          default: 8
+          minimum: 1
+          maximum: 50
+          example: 8
+        mode:
+          type: string
+          description: >
+            检索模式：
+            - fast：向量搜索 + 关键词 rerank（默认）
+            - pipeline：深度回溯检索 + 内容过滤（三层结构输出）
+          enum:
+            - fast
+            - pipeline
+          default: fast
+          example: fast
+        json:
+          type: boolean
+          description: 是否以 JSON 格式返回（含完整来源字段）
+          default: true
+          example: true
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: 检索结果列表
+          items:
+            $ref: "#/components/schemas/SearchResult"
+        total:
+          type: integer
+          description: 返回结果总数
+          example: 8
+
+    SearchResult:
+      type: object
+      required:
+        - source_id
+        - text
+        - score
+      properties:
+        source_id:
+          type: string
+          description: >
+            稳定来源标识，格式 bid{N}_tid{N}_floor{N}。
+            此字段为强制字段，每条结果必须包含。
+          pattern: "^bid\\d+_tid\\d+_floor\\d+$"
+          example: "bid32_tid1847_floor3"
+        text:
+          type: string
+          description: 帖子正文片段，最长 500 字符
+          maxLength: 500
+          example: "选拔分为体能测试和面试两个环节..."
+        score:
+          type: number
+          format: float
+          description: 原始向量检索得分
+          example: 0.87
+        rerank_score:
+          type: number
+          format: float
+          description: 关键词加权后的排序分
+          example: 0.92
+        source:
+          $ref: "#/components/schemas/SourceMetadata"
+
+    SourceMetadata:
+      type: object
+      description: 来源元数据
+      properties:
+        board:
+          type: string
+          description: 版面名（车协工作区/行者足音/纯净水）
+          example: "车协工作区"
+        title:
+          type: string
+          description: 帖子标题
+          example: "2023暑期选拔通知"
+        floor:
+          type: integer
+          description: 楼层号
+          example: 3
+        author:
+          type: string
+          description: 作者
+          example: "张三"
+        time:
+          type: string
+          description: 发布时间
+          example: "2023-06-15"
+        url:
+          type: string
+          format: uri
+          description: 论坛回查链接
+          example: "https://bdwm.net/bbs/t/12345/3"
+        source_label:
+          type: string
+          description: 识别出的会议/通知/总结标签
+          example: "meeting"
+        source_type:
+          type: string
+          description: "类型：meeting / notice / finance / route / thread"
+          enum:
+            - meeting
+            - notice
+            - finance
+            - route
+            - thread
+          example: "notice"
+        cues:
+          type: array
+          description: "线索标签：proposal / practice / benefit / risk / outcome"
+          items:
+            type: string
+            enum:
+              - proposal
+              - practice
+              - benefit
+              - risk
+              - outcome
+          example: ["proposal", "practice"]
+
+    ControversyLookupRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: 争议事件查询文本
+          minLength: 1
+          maxLength: 200
+          example: "暑期选拔"
+        top_k:
+          type: integer
+          description: 返回候选事件数量
+          default: 3
+          minimum: 1
+          maximum: 10
+          example: 3
+
+    ControversyLookupResponse:
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          type: array
+          description: 匹配的争议事件列表（仅含 metadata 和候选 tid）
+          items:
+            $ref: "#/components/schemas/ControversyEvent"
+        total:
+          type: integer
+          description: 返回事件总数
+          example: 3
+        note:
+          type: string
+          description: >
+            提示信息：事件 metadata 可用于定位方向，
+            但 facts 必须通过 /search 端点回查原帖。
+          example: "事件索引是二手材料，facts 必须通过 /search 回查原帖"
+
+    ControversyEvent:
+      type: object
+      required:
+        - name
+        - candidate_tids
+      properties:
+        name:
+          type: string
+          description: 事件名称
+          example: "2023暑期选拔争议"
+        period:
+          type: string
+          description: 事件发生时间段
+          example: "2023-06 至 2023-07"
+        summary:
+          type: string
+          description: 事件摘要
+          example: "选拔标准变更引发的讨论"
+        viewpoints:
+          type: array
+          description: 各方观点概述
+          items:
+            type: string
+          example: ["支持新标准", "反对突然变更"]
+        candidate_tids:
+          type: array
+          description: >
+            候选帖子 tid 列表。
+            使用这些 tid 通过 /search 端点回查原帖获取事实细节。
+          items:
+            type: integer
+          example: [1847, 1852, 1860]
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: 错误代码
+              example: "BAD_QUERY"
+            message:
+              type: string
+              description: 错误描述
+              example: "查询文本不能为空"
+            detail:
+              type: string
+              description: 详细错误信息（可选）
+
+  responses:
+    BadRequest:
+      description: "400 — 请求参数无效（如查询为空、参数越界）"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: "BAD_QUERY"
+              message: "查询文本不能为空"
+
+    NotFound:
+      description: "404 — 未找到匹配结果"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: "NO_RESULTS"
+              message: "未找到与查询匹配的结果"
+
+    RateLimited:
+      description: "429 — 超出速率限制（每 API key 10 请求/分钟）"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: "RATE_LIMITED"
+              message: "超出速率限制：10 请求/分钟，请稍后重试"
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: 建议等待的秒数
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: 每分钟请求上限
+          example: 10
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: 当前窗口剩余请求数
+          example: 0
+
+    InternalError:
+      description: "500 — 服务器内部错误"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error:
+              code: "INTERNAL_ERROR"
+              message: "服务器内部错误，请稍后重试"

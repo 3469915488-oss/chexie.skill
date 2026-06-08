@@ -255,9 +255,11 @@ chexie.skill/
 │   ├── cooccur_graph.py      # 共现图 + 社区发现
 │   ├── analyze_topic.py      # 话题分析引擎
 │   ├── detect_events.py      # 事件自动检测（多维度评分）
+│   ├── controversy_lookup.py # 争议事件索引守卫（只返回候选 tid）
 │   └── server_search_chexie.py # 后端检索引擎
 ├── tests/
-│   └── smoke_test.py         # 冒烟测试（5 场景）
+│   ├── smoke_test.py         # 冒烟测试（5 场景）
+│   └── test_retrieval_quality.py # 检索质量回归测试（22 用例）
 ├── entities/                 # 实体映射数据（运行时生成）
 ├── references/
 │   ├── answer-format.md      # 回答模板与纪律
@@ -271,7 +273,6 @@ chexie.skill/
 ## 版本历史
 
 ### v3.2（2026-06-08）— 工程一致性 + 生成纪律
-<<<<<<< HEAD
 
 **工程一致性修复**（基于外部 code review 反馈）：
 
@@ -308,6 +309,17 @@ chexie.skill/
   - 详细阐述协会组织架构（理事会→主席团→执委会→各部门）
   - 描述 6 大核心制度体系（训练、技术、拉练、暑期、师徒、论坛）
   - 明确 5 个分析视角（制度、历史、组织、人性、传承）
+- **代码层守卫**：`scripts/controversy_lookup.py` 强制争议索引只返回候选 tid，防止二手材料泄漏进事实层
+  - `validate_no_text_leakage()` 守卫函数，禁止超长文本字段
+  - `analyze_topic.py` 添加注释明确 events.yaml vs controversies 的使用边界
+- **检索质量回归测试**：`tests/test_retrieval_quality.py`（22 用例）
+  - 10 个固定查询集 + 期望命中 tid，覆盖 14 个争议事件簇
+  - source_id 格式校验、去重检查、中文 FTS5 分词测试
+  - controversy_lookup 守卫测试（导入/返回格式/泄漏检测/tid 反查）
+- **`agents/openai.yaml` 重写**：从 8 行占位扩展为完整 OpenAPI 3.0.3 GPT Action spec
+  - 2 个端点（`/search`、`/controversy-lookup`）+ API Key 鉴权
+  - 完整请求/响应 schema、错误码（400/404/429/500）、速率限制
+- **删除旧版 14 个独立事件 YAML 文件**，统一为 `events/controversies.yaml`
 
 ### v3.0（2026-06-08）— 融合检索 + 专题分析
 

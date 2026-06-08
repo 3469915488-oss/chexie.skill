@@ -50,6 +50,12 @@ python scripts/search_chexie.py --pipeline "25双日白河A组出现了什么问
 
 **事件索引是二手材料**。`events/*.yaml` 只能用于定位帖子，事实细节必须回到原帖 chunk。
 
+**代码层守卫**：`scripts/controversy_lookup.py` 强制争议索引只返回候选 tid。调用方式：
+```bash
+python scripts/controversy_lookup.py '暑期选拔' --json
+```
+返回的事件 metadata（name/period/summary/viewpoints）可用于定位方向，但 facts 必须通过 search_chexie.py 回查原帖。
+
 **禁止事项**：
 - 禁止"根据知识库记载"等模糊来源
 - 禁止合并冲突来源

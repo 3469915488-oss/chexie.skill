@@ -1,0 +1,75 @@
+name: "2013纪律争论事件"
+date_range: "2013-11-25 ~ 2013-11-30"
+severity: "中度争议"
+
+summary: |
+  2013年11月，某帖讨论下坡超车引发激烈争执，版主锁帖。
+  李杏在行者足音开新帖《我也说纪律》，引发57回复/22人参与的大规模讨论。
+  核心争论：纪律的重要性 vs 强调纪律的方式。
+  马丁（强硬派）认为对待纪律问题不应温和——温和的表达不会有大的效果。
+  反对者认为锁帖不能解决矛盾，反而有吸引效应。
+
+phases:
+  - name: "导火索"
+    date: "2013-11-25"
+    description: "某帖讨论下坡超车引发争执，版主锁帖"
+  - name: "新开帖讨论"
+    date: "2013-11-25"
+    description: "李杏开《我也说纪律》，引发大规模讨论"
+  - name: "强硬vs温和"
+    date: "2013-11-25 ~ 2013-11-27"
+    description: "马丁强硬派 vs 反对者温和派激烈争论"
+
+core_posts:
+  - tid: 6246
+    bid: 2
+    title: "我也说纪律"
+    author: 李杏
+    date: "2013-11-25"
+    floors: 57
+    participants: 22
+    role: "主讨论帖"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=6246&p=1"
+  - tid: 6254
+    bid: 2
+    title: "我也说说'纪律'的功用"
+    author: 未知
+    date: "2013-11-27"
+    floors: 26
+    participants: 15
+    role: "延续讨论帖"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=6254&p=1"
+
+keywords:
+  primary: [纪律, 下坡超车, 锁帖, 强硬vs温和, 言论自由]
+  secondary: [李杏, 马丁, 乱舞, 版主权, 罚跑]
+
+key_figures:
+  - id: 李杏
+    role: "开帖者"
+    position: "纪律马虎不得，但原帖被锁后需要有地方继续讨论"
+  - id: 马丁
+    role: "强硬纪律派"
+    position: "温和的表达不会有大的效果，纪律怎么强调都不过分"
+  - id: 乱舞
+    role: "版主"
+    position: "锁帖是因为争论升级为人身攻击"
+  - id: 小千
+    role: "调解者"
+    position: "锁帖理由认同，换个地方讨论纪律问题本身"
+  - id: 魔方
+    role: "道歉者"
+    position: "希望大家原谅表达能力造成的误会，完全接受马丁的做法"
+
+stakeholder_positions:
+  hardline:
+    summary: "纪律必须强硬强调，温和无效"
+    logic: "纪律关乎安全 → 温和表达无效果 → 必须强硬强调"
+  moderate:
+    summary: "锁帖不能解决矛盾，应有讨论空间"
+    logic: "锁帖只是压制 → 矛盾未解决 → 需要讨论空间"
+
+connection_to_other_events: |
+  此事件与2011版主争议、2013甘道夫封禁控诉构成"论坛权力管控"三部曲。
+  2011年讨论版务权力边界，2013年纪律争论中版主锁帖（执行），
+  2013年甘道夫被封禁后控诉（反弹）。

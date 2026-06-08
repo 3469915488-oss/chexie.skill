@@ -1,0 +1,126 @@
+name: "2025暑期分团事件"
+date_range: "2025-05-23 ~ 2026-05-27"
+severity: "高度争议"
+
+summary: |
+  2025年暑期远征，理事会决定只开两个团（而非传统的三个团），
+  导致约11名通过春训的预备队员落选。此事引发车协历史上最大规模的论坛争议，
+  持续一年，涉及多个阶段：
+  1. 2025年5月：分团决定引发争议
+  2. 2025年5月：dudu开炮，引发大规模讨论
+  3. 2025年5月：柏拉图发起"第三团"倡议
+  4. 2026年5月：劳模发帖追责25理事会
+  5. 2026年5月：蓝、牛肉汤圆发帖回应
+  核心争议：应去尽去 vs 精英化、沟通失职、制度崩坏
+
+phases:
+  - name: "分团决定"
+    date: "2025-05-23"
+    description: "理事会决定暑期只开两个团"
+  - name: "dudu开炮"
+    date: "2025-05-24"
+    description: "dudu发帖质疑，引发大规模讨论"
+  - name: "第三团倡议"
+    date: "2025-05-26"
+    description: "柏拉图发起第三团私约倡议"
+  - name: "理事会致歉"
+    date: "2025-05-25"
+    description: "理事会发布致歉说明"
+  - name: "劳模追责"
+    date: "2026-05-18"
+    description: "劳模发帖要求追究处罚25理事会"
+  - name: "理事回应"
+    date: "2026-05-25"
+    description: "蓝、牛肉汤圆发帖回应"
+
+core_posts:
+  - tid: 8802
+    bid: 2
+    title: "好多理事在自述里提到了'命运'"
+    author: dudu
+    date: "2025-05-24"
+    floors: 32
+    participants: 16
+    role: "引爆帖"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=8802&p=1"
+  - tid: 8812
+    bid: 2
+    title: "借一位老会员之口说出我对今年暑期远征的想法和打算采取的行动"
+    author: 柏拉图
+    date: "2025-05-26"
+    floors: 16
+    participants: 11
+    role: "第三团倡议"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=8812&p=1"
+  - tid: 10295
+    bid: 1
+    title: "理事会关于2025暑期远征相关讨论的致歉说明"
+    author: 理事会
+    date: "2025-05-25"
+    role: "官方致歉"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=1&tid=10295&p=1"
+  - tid: 9015
+    bid: 2
+    title: "要求追究处罚25年理事会"
+    author: 劳模
+    date: "2026-05-18"
+    floors: 71
+    participants: 30
+    role: "追责帖"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=9015&p=1"
+  - tid: 9062
+    bid: 2
+    title: "对于25理事生涯的回忆与致歉——蓝"
+    author: 蓝
+    date: "2026-05-25"
+    role: "理事反思"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=9062&p=1"
+  - tid: 9060
+    bid: 2
+    title: "对于25理事生涯的一些回应--牛肉汤圆"
+    author: 牛肉汤圆
+    date: "2026-05-25"
+    role: "理事长回应"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=2&tid=9060&p=1"
+
+keywords:
+  primary: [分团, 暑期, 两个团, 三个团, 落选, 应去尽去, 精英化]
+  secondary: [dudu, 柏拉图, 第三团, 理事会, 致歉, 劳模, 追责]
+
+key_figures:
+  - id: dudu
+    role: "引爆者，老会员"
+    position: "质疑分团决定的合理性和沟通方式"
+  - id: 柏拉图
+    role: "第三团倡议者"
+    position: "发起私约第三团，为落选队员争取机会"
+  - id: 理事会
+    role: "决策方"
+    position: "决定只开两个团，后致歉承认沟通失职"
+  - id: 劳模
+    role: "追责者，老会员"
+    position: "要求追究25理事会的责任"
+  - id: 蓝
+    role: "25年理事"
+    position: "发帖回忆致歉，承认决策失误"
+  - id: 牛肉汤圆
+    role: "25年理事长"
+    position: "发帖回应，解释决策背景"
+
+stakeholder_positions:
+  should_go_all:
+    summary: "应去尽去，不应因制度原因让队员落选"
+    logic: "通过春训 = 有资格 → 制度问题不应由个人承担 → 应开三个团或找其他方案"
+  elite_selection:
+    summary: "精英化选拔，确保队伍质量"
+    logic: "暑期远征是高成本活动 → 需要高质量队伍 → 精英化选拔是必要的"
+  communication_failure:
+    summary: "沟通失职是核心问题"
+    logic: "决定本身或有道理 → 但沟通太晚 → 预备队员无准备时间 → 沟通失职是核心问题"
+
+connection_to_other_events: |
+  此事件是车协历史上最大规模的争议，持续一年，涉及多个阶段。
+  与2018破风致歉事件同属"规则vs人性"系列。
+  2018年是私人关系影响工作决策，2025年是制度规则影响个人利益。
+  与2026年系列事件（劳模制度批评、冬游特批、押后拆夹器）构成"25-26年制度崩坏"系列。
+  2025年分团是制度崩坏的起点，2026年系列事件是延续。

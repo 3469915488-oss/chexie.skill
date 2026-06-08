@@ -1,0 +1,61 @@
+name: "2026劳模制度批评帖"
+date_range: "2026-02-12 ~ 2026-02-13"
+severity: "中度争议"
+
+summary: |
+  2026年2月12日（与实践部押后说明同一天），劳模在纯净水发帖
+  《关于学习阅读车协各项规章制度的倡议》，公开批评协会
+  "宝宝真棒"（bbzb）文化——不问效果的夸夸式鼓励被滥用成廉价遮羞布。
+  帖子触及三大问题：
+  1. bbzb文化导致严肃反思被稀释
+  2. 执委会效率问题——"细节问题会后解决"沦为"会后也没解决"
+  3. 拉练总结缺乏严谨——事后讨论的松懈是安全意识废弛的最后一环
+  43回复/20人参与，支持者（小豹、栖风）和温和派均有声音。
+
+phases:
+  - name: "批评发帖"
+    date: "2026-02-12"
+    description: "劳模发帖批评bbzb文化和执委会效率"
+  - name: "激烈讨论"
+    date: "2026-02-12 ~ 2026-02-13"
+    description: "会员激烈讨论bbzb文化和执委会效率问题"
+
+core_posts:
+  - tid: 20223
+    bid: 4
+    title: "关于学习阅读车协各项规章制度的倡议"
+    author: 劳模
+    date: "2026-02-12"
+    floors: 9
+    participants: 5
+    role: "批评帖"
+    url: "https://www.chexie.net/bbs/content/index.php?bid=4&tid=20223&p=1"
+
+keywords:
+  primary: [劳模, bbzb, 宝宝真棒, 廉价遮羞布, 执委会效率]
+  secondary: [严肃反思, 安全意识, 拉练总结, 细节问题, 会后解决]
+
+key_figures:
+  - id: 劳模
+    role: "老会员，批评者"
+    position: "批评bbzb文化和执委会效率问题"
+  - id: 小豹
+    role: "支持者"
+    position: "支持劳模的批评，认为应该严肃反思"
+  - id: 栖风
+    role: "支持者"
+    position: "支持劳模的批评，认为应该改进执委会效率"
+
+stakeholder_positions:
+  laomo:
+    summary: "bbzb文化是廉价遮羞布，执委会效率低下"
+    logic: "bbzb文化 → 严肃反思被稀释 → 执委会效率低下 → 细节问题会后不解决 → 安全意识废弛"
+  defenders:
+    summary: "bbzb是正面激励，执委会已经尽力"
+    logic: "bbzb鼓励会员 → 执委会工作繁重 → 已经尽力 → 不应过度批评"
+
+connection_to_other_events: |
+  此事件与2024反对bbzb事件同属"协会文化批评"系列。
+  2024年是峰林批评bbzb文化，2026年是劳模批评bbzb文化和执委会效率。
+  两次批评都触及了"鼓励vs反思"的核心问题。
+  与2025暑期分团事件、2026冬游特批事件、2026押后拆夹器事件构成"25-26年制度崩坏"系列。

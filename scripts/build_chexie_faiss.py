@@ -25,7 +25,7 @@ RAW_DIRS = {
 }
 MODEL_NAME = "BAAI/bge-small-zh-v1.5"
 BACKEND = "torch"
-MODEL_DIR = "/opt/wiki/models"
+MODEL_DIR = os.environ.get("CHEXIE_MODEL_DIR", "/opt/wiki/models")
 QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
 
 

@@ -16,12 +16,13 @@ os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
-ROOT = Path("/opt/chexie-knowledge")
+ROOT = Path(os.environ.get("CHEXIE_ROOT", "/opt/chexie-knowledge"))
 INDEX_PATH = ROOT / "faiss_index.bin"
 META_PATH = ROOT / "faiss_meta.jsonl"
 MODEL_NAME = "BAAI/bge-small-zh-v1.5"
-MODEL_PATH = Path(
-    "/opt/wiki/models/models--BAAI--bge-small-zh-v1.5/"
+_DEFAULT_MODEL_DIR = os.environ.get("CHEXIE_MODEL_DIR", "/opt/wiki/models")
+MODEL_PATH = Path(_DEFAULT_MODEL_DIR) / (
+    "models--BAAI--bge-small-zh-v1.5/"
     "snapshots/7999e1d3359715c523056ef9478215996d62a620"
 )
 QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："

@@ -34,7 +34,7 @@ ROLES = ["押后", "队医", "队长", "领队", "前站", "押后负责", "队�
 YEARS_PATTERN = re.compile(r'(?:19|20)\d{2}|[１２３４５６７８９０]{2,4}')
 BID_PATTERN = re.compile(r'\d{2}(?:春|秋|暑|寒|冬)')
 
-OUT_DIR = Path("/opt/chexie-knowledge/entities")
+OUT_DIR = Path(os.environ.get("CHEXIE_ROOT", "/opt/chexie-knowledge")) / "entities"
 RAW_DIRS = {
     1: "/home/ubuntu/workspace/chexie_data_bid1/threads.json",
     2: "/home/ubuntu/workspace/chexie_data_bid2/threads.json",

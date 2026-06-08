@@ -27,12 +27,12 @@ from sentence_transformers import SentenceTransformer
 
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(os.environ.get("CHEXIE_ROOT", Path(__file__).resolve().parent))
 INDEX_PATH = ROOT / "faiss_index.bin"
 META_PATH = ROOT / "faiss_meta.jsonl"
 BM25_CACHE = ROOT / "bm25_index.jsonl"
 MODEL_NAME = "BAAI/bge-small-zh-v1.5"
-MODEL_DIR = "/opt/wiki/models"
+MODEL_DIR = os.environ.get("CHEXIE_MODEL_DIR", "/opt/wiki/models")
 QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
 
 _meta_cache = None

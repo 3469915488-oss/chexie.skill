@@ -390,14 +390,89 @@ https://www.chexie.net/bbs/content/index.php?bid=7&tid=1119
 
 详细模板见 `references/answer-format.md`。字段说明见 `references/source-schema.md`。
 
-## 首次使用准备
+## 安装指南
 
-数据文件（faiss_index.bin + faiss_meta.jsonl）需部署到远程服务器
-`/opt/chexie-knowledge/` 目录下。从 GitHub Releases 下载：
+### 方式一：一键安装（推荐）
+
+`install.py` 自动完成下载、解压、依赖安装、BM25 构建和验证，支持 Windows / macOS / Linux：
 
 ```bash
-wget https://github.com/3469915488-oss/chexie.skill/releases/download/v2.0.0-pipeline/chexie_data.tar.gz
-tar -xzf chexie_data.tar.gz -C /opt/chexie-knowledge/
-# 可选：构建 BM25 索引（约 2.5 分钟，仅首次）
-python /opt/chexie-knowledge/build_bm25.py
+# Linux / macOS
+python install.py --root ~/chexie-knowledge
+
+# Windows (CMD)
+python install.py --root C:\chexie-knowledge
+
+# 已有数据文件时，只装依赖
+python install.py --skip-data
 ```
+
+安装完成后按屏幕提示设置环境变量。
+
+### 方式二：手动安装
+
+#### Linux / macOS
+
+数据文件从 GitHub Releases 下载：
+
+```bash
+# 设置安装目录
+export CHEXIE_ROOT="/opt/chexie-knowledge"
+
+# 下载数据
+wget https://github.com/3469915488-oss/chexie.skill/releases/download/v2.0.0-pipeline/chexie_data.tar.gz
+mkdir -p $CHEXIE_ROOT
+tar -xzf chexie_data.tar.gz -C $CHEXIE_ROOT/
+
+# 安装依赖
+pip install -r requirements.txt
+
+# 可选：构建 BM25 索引（约 2.5 分钟）
+python $CHEXIE_ROOT/build_bm25.py
+```
+
+#### Windows
+
+```cmd
+:: 设置安装目录
+set CHEXIE_ROOT=C:\chexie-knowledge
+
+:: 从浏览器下载数据包:
+::   https://github.com/3469915488-oss/chexie.skill/releases/download/v2.0.0-pipeline/chexie_data.tar.gz
+:: 用 7-Zip 或 WinRAR 解压到 %CHEXIE_ROOT%
+
+:: 安装依赖
+pip install -r requirements.txt
+
+:: 可选：构建 BM25 索引
+python %CHEXIE_ROOT%\build_bm25.py
+```
+
+**Windows 用户注意**：`wget` 和 `tar` 不是系统自带命令。推荐用方式一（`install.py`，纯 Python 实现）或手动从浏览器下载后用 7-Zip 解压。
+
+### 环境变量
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `CHEXIE_ROOT` | 数据文件目录（faiss_index.bin, faiss_meta.jsonl） | `/opt/chexie-knowledge` |
+| `CHEXIE_MODEL_DIR` | sentence-transformers 模型缓存目录 | `/opt/wiki/models`（Linux）或 `~/.cache/huggingface`（Windows/macOS） |
+
+所有脚本都通过这两个环境变量定位数据和模型。不设置时使用默认路径。
+
+### 验证安装
+
+```bash
+python search_chexie.py --info
+```
+
+预期输出：
+```json
+{
+  "root": "/opt/chexie-knowledge",
+  "index": "/opt/chexie-knowledge/faiss_index.bin",
+  "meta_count": 138000,
+  "ready": true
+}
+```
+
+> 跨平台适配的技术细节见 `references/windows-porting-guide.md`。

@@ -1,0 +1,12 @@
+# chexie-knowledge 完整依赖（含高级分析功能）
+# 安装: pip install -r requirements-full.txt
+# 基础版用 requirements.txt 即可
+
+-r requirements.txt
+
+# 高级分析（analyze_topic.py / cooccur_graph.py）
+scikit-learn>=1.3.0
+pyyaml>=6.0
+scipy>=1.10.0
+networkx>=2.8
+python-louvain>=0.16

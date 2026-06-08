@@ -155,29 +155,73 @@ python scripts/search_chexie.py "春训时间" --top-k 5 --json
 
 ## 安装
 
-### 依赖
+支持 **Linux / macOS / Windows**。所有脚本通过环境变量定位数据和模型，不硬编码路径。
 
+### 方式一：一键安装（推荐）
+
+`install.py` 自动下载数据、安装依赖、构建 BM25、验证安装：
+
+```bash
+# Linux / macOS
+python install.py --root ~/chexie-knowledge
+
+# Windows (CMD 或 PowerShell)
+python install.py --root C:\chexie-knowledge
+
+# 已有数据，只装依赖
+python install.py --skip-data
 ```
-faiss-cpu>=1.7.4
-sentence-transformers>=2.2.0
-numpy>=1.21.0
-networkx>=2.8
-python-louvain>=0.16
-scikit-learn>=1.0
-jieba>=0.42.1
-pyyaml>=6.0
+
+安装完成后按屏幕提示设置环境变量即可。
+
+### 方式二：手动安装
+
+#### 依赖
+
+```bash
+pip install -r requirements.txt
 ```
 
-模型 `BAAI/bge-small-zh-v1.5` 首次运行自动下载（～200MB）。
+模型 `BAAI/bge-small-zh-v1.5` 首次运行自动下载（约 200MB）。如需自定义模型缓存目录，设置 `CHEXIE_MODEL_DIR` 环境变量。
 
-### 下载数据
+#### 下载数据
 
-```
+**Linux / macOS**：
+```bash
 wget https://github.com/3469915488-oss/chexie.skill/releases/download/v3.0.0/chexie_data.tar.gz
-tar -xzf chexie_data.tar.gz
+tar -xzf chexie_data.tar.gz -C /opt/chexie-knowledge/
 ```
+
+**Windows**：
+从浏览器下载数据包后用 7-Zip 解压到安装目录，或使用 `install.py`（推荐）。
 
 数据文件：faiss_index.bin（270MB）、title_index.bin（38MB）、chexie_fts.db（343MB）、faiss_meta.jsonl（228MB）、entities/\*.json。
+
+### 环境变量
+
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `CHEXIE_ROOT` | 数据文件目录 | `/opt/chexie-knowledge`（Linux）或 `%APPDATA%\chexie-knowledge`（Windows） |
+| `CHEXIE_MODEL_DIR` | 模型缓存目录 | `/opt/wiki/models`（Linux）或 `~/.cache/huggingface`（macOS/Windows） |
+
+Windows 用户设置示例（CMD 管理员）：
+```cmd
+setx CHEXIE_ROOT "C:\chexie-knowledge"
+setx CHEXIE_MODEL_DIR "C:\chexie-knowledge\models"
+```
+
+### 验证安装
+
+```bash
+python scripts/search_chexie.py --info
+```
+
+### Windows 特别注意
+
+- `wget` 和 `tar` 不是 Windows 自带命令，推荐使用 `install.py`（纯 Python，无需额外工具）
+- `faiss-cpu` 有 Windows wheel，不要安装 `faiss-gpu`
+- 路径使用反斜杠或正斜杠均可（Python pathlib 自动处理）
+- 数据包约 850MB 解压后，确保目标盘有足够空间
 
 ---
 
@@ -209,7 +253,9 @@ chexie.skill/
 │   ├── 2026-rear-guard-parts-incident.yaml
 │   ├── 2026-winter-trip-exception.yaml
 │   └── 2026-winter-trip-rear-guard.yaml
-├── requirements.txt          # Python 依赖
+├── install.py                 # 跨平台一键安装脚本
+├── requirements.txt           # Python 基础依赖
+├── requirements-full.txt      # Python 完整依赖（含分析功能）
 ├── scripts/
 │   ├── search_chexie.py      # 主入口（搜索 + 管线 + 分析）
 │   ├── pipeline.py           # 深度复盘管线

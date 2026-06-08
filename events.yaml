@@ -1,85 +1,163 @@
-# 北大车协事件框架
-# 定义论坛讨论中常见的事件类型及其结构化字段
-# 分析模式自动将帖子映射到对应事件结构
+# 北大车协活动类型事件框架
+# 定义论坛讨论中常见活动的结构化字段，用于自动映射帖子到对应事件结构
+# 更新时间：2026-06-08
+# 数据来源：chexie.net BBS 全量爬取（bid=1,2,4）
 
 events:
   拉练:
-    description: "骑行训练活动，单日或双日"
+    # 骑行训练活动，包含单日拉练和双日拉练
+    # 是车协最核心的日常活动形式，通常周末进行
+    description: "骑行训练活动，单日或双日，含正式拉练和分组拉练"
     detect:
-      title_keywords: ["双日", "单日", "拉练", "前站", "正式", "社考"]
-      board: ["车协工作区", "行者足音"]
+      # 标题中出现的关键词（满足任一即匹配）
+      title_keywords:
+        - "双日"
+        - "单日"
+        - "拉练"
+        - "前站"
+        - "正式拉练"
+        - "分组拉练"
+        - "迎新拉练"
+        - "考察拉练"
+        - "社考"
+        - "穿越"
+        - "五一拉练"
+        - "天盛湖"
+        - "戒台寺"
+        - "大觉寺"
+        - "慕田峪"
+        - "铁壁银山"
+        - "银山塔林"
+        - "十渡"
+        - "珍珠泉"
+        - "百花山"
+        - "虎峪"
+        - "金山"
+        - "麋鹿苑"
+        - "凤凰岭"
+      # 帖子所在版面名称
+      board:
+        - "车协工作区"
+        - "行者足音"
     fields:
       route:
-        description: "拉练路线名"
+        description: "拉练路线名称（如：戒台寺、大觉寺、慕田峪等）"
         type: entity
         source: routes.json
         required: true
       year:
-        description: "年份"
+        description: "活动年份（从标题中提取，如'25春'→2025年）"
         type: regex
         pattern: "(?:20)?([0-9]{2})(?=春|秋|暑|冬|双日|单日|拉练)"
-      group:
-        description: "组别（A组/B组）"
+      season:
+        description: "活动季节（春/秋/暑/冬）"
         type: regex
-        pattern: "[AB](\\d)?组?"
+        pattern: "(春|秋|暑|冬)(?=训|季|期|假|拉练)"
+      group:
+        description: "组别标识（如 A1组、B组、C组）"
+        type: regex
+        pattern: "[ABCD](\\d)?组?"
       date:
-        description: "活动日期"
+        description: "活动日期（取帖子发布时间）"
         type: post_meta
         field: "time"
+      duration:
+        description: "拉练持续天数"
+        type: enum
+        values:
+          - "单日"
+          - "双日"
+          - "三日"
     roles:
-      - "押后"
-      - "队医"
-      - "队长"
-      - "领队"
-      - "前站"
-      - "留口"
-      - "前旗"
-      - "后旗"
-      - "前助"
+      # 拉练中的职能岗位，按重要性排序
+      - name: "队长"
+        description: "全队负责人，统筹拉练全程"
+      - name: "领队"
+        description: "协助队长管理队伍"
+      - name: "前旗"
+        description: "队伍最前方领骑，控制速度和路线"
+      - name: "后旗"
+        description: "队伍最后方骑行，确保无人掉队"
+      - name: "前站"
+        description: "先于队伍出发，负责探路和补给点联络"
+      - name: "押后"
+        description: "队尾保障，照顾掉队者和处理突发状况"
+      - name: "前助"
+        description: "前旗助手，协助控速和传递信号"
+      - name: "留口"
+        description: "岔路口停留指路，等队尾通过后再跟上"
+      - name: "队医"
+        description: "负责伤病处理和应急医疗"
+      - name: "拉秘"
+        description: "拉练秘书，负责签到、记录和后勤协调"
     phases:
-      - name: "集合"
-        keywords: ["集合", "出发"]
+      # 拉练流程阶段，按时间顺序排列
+      - name: "集合签到"
+        keywords: ["集合", "签到", "出发", "碰头"]
       - name: "检车"
-        keywords: ["检车", "检查车辆"]
-      - name: "骑行中"
-        keywords: ["骑行", "爬坡", "放坡", "途中"]
+        keywords: ["检车", "检查车辆", "车况", "胎压"]
+      - name: "出发骑行"
+        keywords: ["出发", "骑行", "起步", "编队"]
+      - name: "爬坡"
+        keywords: ["爬坡", "上坡", "推车", "攻坡"]
+      - name: "下坡/放坡"
+        keywords: ["放坡", "下坡", "压速", "刹车"]
+      - name: "途中休息"
+        keywords: ["休息", "补给", "喝水", "拉伸"]
       - name: "午饭"
-        keywords: ["午饭", "吃饭", "休息"]
-      - name: "回程"
-        keywords: ["回程", "返程", "收队"]
+        keywords: ["午饭", "吃饭", "午餐", "FB"]
+      - name: "回程/收队"
+        keywords: ["回程", "返程", "收队", "解散"]
     output_types:
+      # 拉练相关帖子的产出类型
       - name: "队长总结"
-        detect_keywords: ["队长总结", "领队总结", "拉练总结"]
+        detect_keywords: ["队长总结", "领队总结", "拉练总结", "工作总结"]
       - name: "押后日志"
-        detect_keywords: ["押后日志", "押后总结", "押后记录"]
+        detect_keywords: ["押后日志", "押后总结", "押后记录", "押后视角"]
       - name: "队医日志"
-        detect_keywords: ["队医日志", "队医总结", "队医记录"]
+        detect_keywords: ["队医日志", "队医总结", "队医记录", "伤情"]
       - name: "财务报告"
-        detect_keywords: ["财务", "花费", "费用", "AA"]
+        detect_keywords: ["财务", "花费", "费用", "AA", "账目"]
+      - name: "前站报告"
+        detect_keywords: ["前站", "前站总结", "路线报告"]
+      - name: "照片帖"
+        detect_keywords: ["照片", "图", "图片", "PP", "多图"]
     problems:
+      # 拉练中常见的问题类型
       - name: "扎胎/爆胎"
-        keywords: ["扎胎", "爆胎", "漏气", "蛇咬", "补胎"]
+        keywords: ["扎胎", "爆胎", "漏气", "蛇咬", "补胎", "换胎"]
       - name: "摔车"
-        keywords: ["摔车", "摔", "事故"]
-      - name: "中暑"
-        keywords: ["中暑", "热", "头晕", "恶心"]
+        keywords: ["摔车", "摔倒", "事故", "擦伤", "骨折"]
+      - name: "中暑/脱水"
+        keywords: ["中暑", "脱水", "头晕", "恶心", "热射病"]
       - name: "抽筋/肌肉问题"
-        keywords: ["抽筋", "肌肉", "腿疼", "膝盖"]
+        keywords: ["抽筋", "肌肉", "腿疼", "膝盖", "乳酸"]
       - name: "机械故障"
-        keywords: ["蹭碟", "异响", "变速不准", "掉链", "断条"]
+        keywords: ["蹭碟", "异响", "变速不准", "掉链", "断条", "断辐条", "松把"]
       - name: "体力不支"
-        keywords: ["体力", "跟不上", "掉队", "推车"]
+        keywords: ["体力", "跟不上", "掉队", "推车", "走不动"]
       - name: "迟到/拖沓"
-        keywords: ["迟到", "拖沓", "等人", "耽误"]
+        keywords: ["迟到", "拖沓", "等人", "耽误", "拖延"]
+      - name: "追队/离队"
+        keywords: ["追队", "离队", "提前走", "抄近路", "脱队"]
+      - name: "违纪"
+        keywords: ["违纪", "处罚", "通报", "批评", "警告"]
 
   执委会:
-    description: "协会执委会会议记录"
+    # 协会执委会会议记录，是协会日常治理的核心形式
+    description: "协会执委会会议，记录讨论议题和决策结果"
     detect:
-      title_keywords: ["执委会", "理事会"]
-      board: ["车协工作区"]
+      title_keywords:
+        - "执委会"
+        - "理事会"
+        - "常务会"
+        - "扩大会"
+        - "主席团会议"
+      board:
+        - "车协工作区"
     fields:
       session:
-        description: "第几次执委会"
+        description: "会议届次（如：第十六届理事会第三次执委会）"
         type: regex
         pattern: "第[一二三四五六七八九十百零〇0-9]+次"
       date:
@@ -89,65 +167,161 @@ events:
       type:
         description: "会议类型"
         type: enum
-        values: ["常会", "临时", "扩大会"]
+        values:
+          - "常会"
+          - "临时会"
+          - "扩大会"
+          - "换届会"
+      council:
+        description: "理事会届数"
+        type: regex
+        pattern: "第?[一二三四五六七八九十百零〇0-9]+届"
+    roles:
+      - name: "理事长"
+        description: "理事会负责人，主持会议"
+      - name: "主席团成员"
+        description: "主席团成员，参与决策"
+      - name: "部长"
+        description: "各部门部长，汇报部门工作"
+      - name: "普通会员"
+        description: "列席会员，可发言讨论"
     output_types:
       - name: "会议记录"
-        detect_keywords: ["会议记录", "会议纪要"]
+        detect_keywords: ["会议记录", "会议纪要", "执委会纪录", "执委会记录"]
       - name: "表决结果"
-        detect_keywords: ["表决", "投票", "决议", "通过"]
+        detect_keywords: ["表决", "投票", "决议", "通过", "否决"]
+      - name: "人事公告"
+        detect_keywords: ["任命", "换届", "产生", "当选", "辞职"]
+      - name: "制度文本"
+        detect_keywords: ["条例", "规定", "制度", "办法", "章程"]
 
   出摊:
-    description: "义务修车活动"
+    # 义务修车活动，通常在校园内固定地点进行
+    # 是车协实践部的核心工作，也是对外宣传窗口
+    description: "义务修车服务活动，实践部核心工作"
     detect:
-      title_keywords: ["出摊", "修车"]
-      board: ["车协工作区"]
+      title_keywords:
+        - "出摊"
+        - "义务修车"
+        - "免费修车"
+        - "修车服务"
+        - "三角地"
+        - "招新摆摊"
+      board:
+        - "车协工作区"
     fields:
       date:
+        description: "出摊日期"
         type: post_meta
         field: "time"
       number:
-        description: "第几次出摊"
+        description: "本学期第几次出摊"
         type: regex
         pattern: "第[一二三四五六七八九十]+次"
+      location:
+        description: "出摊地点（如三角地、学五食堂前等）"
+        type: text_match
+        keywords: ["三角地", "学五", "理教", "南门", "燕南"]
+    roles:
+      - name: "实践部长"
+        description: "出摊活动负责人"
+      - name: "师傅"
+        description: "有修车经验的骨干，指导修车"
+      - name: "徒弟"
+        description: "师徒制下的学习成员"
+      - name: "后勤"
+        description: "负责物资搬运和现场布置"
     output_types:
       - name: "出摊通知"
-        detect_keywords: ["通知", "出摊"]
+        detect_keywords: ["通知", "出摊", "征集人手", "报名"]
       - name: "出摊总结"
-        detect_keywords: ["总结", "出摊"]
+        detect_keywords: ["总结", "出摊", "汇报", "记录", "感想"]
+      - name: "物资清单"
+        detect_keywords: ["物资", "工具", "零件", "清单"]
 
   拉练报名:
-    description: "拉练报名帖"
+    # 拉练活动的报名组织帖，通常在工作区发布
+    description: "拉练报名与名额管理帖"
     detect:
-      title_keywords: ["报名", "名额", "名单"]
-      board: ["车协工作区"]
+      title_keywords:
+        - "报名"
+        - "名额"
+        - "名单"
+        - "报名帖"
+        - "拉练人员"
+        - "编排"
+        - "人员安排"
+      board:
+        - "车协工作区"
     fields:
       route:
+        description: "报名对应的拉练路线"
         type: entity
         source: routes.json
       date:
+        description: "报名截止日期或拉练日期"
         type: post_meta
         field: "time"
+      quota:
+        description: "名额数量"
+        type: regex
+        pattern: "\\d+人|[一二三四五六七八九十百]+人"
+      deadline:
+        description: "报名截止时间"
+        type: text_match
+        keywords: ["截止", "deadline", "DDL", "截至"]
     output_types:
       - name: "报名帖"
-        detect_keywords: ["报名", "开放报名"]
+        detect_keywords: ["报名", "开放报名", "征人", "招募"]
       - name: "名单确认"
-        detect_keywords: ["名单", "确认", "截止"]
+        detect_keywords: ["名单", "确认", "截止", "已截止", "人员编排"]
+      - name: "分组公告"
+        detect_keywords: ["分组", "A组", "B组", "编排", "分配"]
 
   修车讲座:
-    description: "实践部修车教学讲座"
+    # 实践部组织的修车教学讲座
+    # 通常配合师徒制，是新会员学习修车技能的主要途径
+    description: "实践部修车教学讲座与练习活动"
     detect:
-      title_keywords: ["修车讲座", "修车练习", "押后自习"]
-      board: ["车协工作区"]
+      title_keywords:
+        - "修车讲座"
+        - "修车练习"
+        - "押后自习"
+        - "技术讲座"
+        - "修车教学"
+        - "技术培训"
+        - "实践部活动"
+      board:
+        - "车协工作区"
     fields:
       number:
+        description: "本学期第几次讲座"
         type: regex
         pattern: "第[一二三四五六七八九十]+次"
       topic:
-        description: "讲座主题"
+        description: "讲座主题（修车技能点）"
         type: text_match
-        keywords: ["补胎", "变速", "刹车", "中轴", "碗组", "综合"]
+        keywords:
+          - "补胎"
+          - "变速"
+          - "刹车"
+          - "中轴"
+          - "碗组"
+          - "花鼓"
+          - "链条"
+          - "辐条"
+          - "编圈"
+          - "综合"
+          - "拆装"
+          - "调试"
+      instructor:
+        description: "讲师/师傅"
+        type: text_match
+        keywords: ["师傅", "讲师", "教学", "实践部长"]
     output_types:
       - name: "讲座通知"
-        detect_keywords: ["讲座", "通知"]
+        detect_keywords: ["讲座", "通知", "预告", "开课"]
       - name: "讲座总结"
-        detect_keywords: ["总结", "记录"]
+        detect_keywords: ["总结", "记录", "回顾", "笔记"]
+      - name: "考核公告"
+        detect_keywords: ["考核", "考试", "技术考核", "押后考核"]

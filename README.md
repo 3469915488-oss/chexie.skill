@@ -132,22 +132,22 @@ python scripts/search_chexie.py "春训时间" --top-k 5 --json
 
 ### 事件框架（`events.yaml`）
 
-定义了五种常见事件类型（拉练、执委会、出摊、拉练报名、修车讲座），每个事件有固定结构（路线/年份/组别、会议届次、角色、常见问题等）。分析模式自动将帖子归类到事件框架中。
+定义了五种常见活动类型（拉练、执委会、出摊、拉练报名、修车讲座），每个事件有固定结构（路线/年份/季节/组别、会议届次、角色与描述、阶段划分、常见问题类型等）。分析模式自动将帖子归类到事件框架中。拉练类型覆盖 26 条路线名关键词和 10 个岗位角色。
 
 ### 分析 Prompt（`prompts/*.yaml`）
 
 三段可配置的 LLM prompt 模板，控制分析输出的风格和深度。支持默认分析、争议深入分析、简洁总结三种模式。
 
-### 结构化事件索引（`events/*.yaml`）
+### 结构化争议事件索引（`events/controversies.yaml`）
 
-14 个历史争议事件的结构化索引（2011-2026），每个事件包含：
-- **概述**：事件背景与核心争议
-- **阶段时间线**：事件发展的关键节点
-- **核心帖子**：相关论坛帖子链接（tid、标题、URL）
-- **关键词**：搜索与分类用
-- **关键人物**：事件参与者及其立场
-- **各方立场**：支持/反对/中间三方的观点
-- **关联事件**：与其他事件的联系
+14 个历史争议事件簇的结构化索引（2001-2024），共收录 74 条帖子。每个事件簇包含：
+- **概述**：事件背景与核心争议（`summary`）
+- **核心帖子**：74 条帖子的 bid/tid/标题/作者/日期/点击量/回复数/角色定位/URL
+- **各方立场**：2-3 个立场方及其核心观点、关键作者（`viewpoints`）
+- **后续影响**：事件推动的制度或文化变化（`outcomes`）
+- **关联事件**：与其他事件簇的交叉引用（`related_controversies`）
+
+14 个事件簇覆盖：创会精神与治理原罪、老会员代际张力、暑期选拔与落选创伤、纪律安全与下坡争议、理事会权力与版务治理、宣传与组织产出、暑期主题与社考定位、2011性别与平权风波、2013治理危机、赞助商关系与共识争论、互评与追队文化危机、论坛存废与平台迁移、成员疏离与风气之忧、借车制度与边界意识。
 
 这些索引用于快速定位历史争议事件的完整脉络，避免重复检索。
 
@@ -238,21 +238,8 @@ chexie.skill/
 │   ├── analyze_default.yaml      # 默认分析 prompt
 │   ├── analyze_controversy.yaml  # 争议深入分析 prompt
 │   └── summarize_topic.yaml     # 简洁总结 prompt
-├── events/                   # 结构化事件索引（14个）
-│   ├── 2011-moderator-dispute.yaml
-│   ├── 2013-discipline-debate.yaml
-│   ├── 2013-gandalf-ban-protest.yaml
-│   ├── 2016-spring-training-cheating.yaml
-│   ├── 2017-chairman-criticizes-minister.yaml
-│   ├── 2018-cancel-apprenticeship.yaml
-│   ├── 2018-pofeng-apology.yaml
-│   ├── 2024-anti-bbzb.yaml
-│   ├── 2025-team-split.yaml
-│   ├── 2026-laomo-institutional-critique.yaml
-│   ├── 2026-moshikou-conflict.yaml
-│   ├── 2026-rear-guard-parts-incident.yaml
-│   ├── 2026-winter-trip-exception.yaml
-│   └── 2026-winter-trip-rear-guard.yaml
+├── events/                   # 结构化事件索引
+│   └── controversies.yaml   # 14个争议事件簇（74条帖子，2001-2024）
 ├── install.py                 # 跨平台一键安装脚本
 ├── requirements.txt           # Python 基础依赖
 ├── requirements-full.txt      # Python 完整依赖（含分析功能）
@@ -284,6 +271,7 @@ chexie.skill/
 ## 版本历史
 
 ### v3.2（2026-06-08）— 工程一致性 + 生成纪律
+<<<<<<< HEAD
 
 **工程一致性修复**（基于外部 code review 反馈）：
 
@@ -305,17 +293,21 @@ chexie.skill/
 - **prompts/*.yaml 全部重写**：三个模板（默认分析/争议分析/简洁总结）均含四阶段格式
 - **search_chexie.py 新增 source_id 字段**：FAISS 和 FTS5 两条搜索路径均输出稳定的 `bid{N}_tid{N}_floor{N}` 标识
 
-### v3.1（2026-06-08）— 结构化事件索引
+### v3.3（2026-06-08）— 争议事件索引重构 + 活动框架优化
 
-- **新增 14 个历史争议事件的结构化索引**（`events/*.yaml`）
-  - 覆盖 2011-2026 年的重要争议事件
-  - 每个事件包含：概述、阶段时间线、核心帖子链接、关键词、关键人物、各方立场、关联事件
+- **`events.yaml` 重写**：活动类型事件框架全面优化
+  - 拉练类型扩展至 26 条路线名关键词、10 个岗位角色（含描述）、8 个阶段
+  - 新增 season/duration/location/quota/deadline 等字段
+  - 执委会增加 council/session 正则，出摊增加 location 字段
+- **`events/controversies.yaml` 新建**：14 个争议事件簇统一索引
+  - 覆盖 2001-2024 年，共收录 74 条帖子（含 bid/tid/作者/日期/clicks/replies/角色定位/URL）
+  - 每个事件簇含 summary、viewpoints（2-3 方立场+关键作者）、outcomes、related_controversies 交叉引用
+  - 替代旧版 14 个独立 YAML 文件，统一 schema 便于程序化读取
 - **SKILL.md 增强**：
   - 添加完整的角色定位和背景认知章节
   - 详细阐述协会组织架构（理事会→主席团→执委会→各部门）
   - 描述 6 大核心制度体系（训练、技术、拉练、暑期、师徒、论坛）
   - 明确 5 个分析视角（制度、历史、组织、人性、传承）
-- **用途**：快速定位历史争议事件的完整脉络，避免重复检索
 
 ### v3.0（2026-06-08）— 融合检索 + 专题分析
 

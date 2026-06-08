@@ -1,0 +1,984 @@
+# 北大车协历史争议事件结构化索引
+# 数据来源：chexie.net BBS 全量爬取（bid=1,2,4）
+# 生成时间：2026-06-08
+# 共 14 个事件簇，时间跨度 2001-2026
+
+controversies:
+  - id: ctrv-01
+    name: "创会精神与治理原罪"
+    period: "2001-2004"
+    intensity: high
+    tags: [组织定位, 规则执行, 历史包袱]
+    summary: "协会早期对根本定位、规则执行力和历史遗产的反思。坐家等人尖锐指出规则制定者自身破坏规则的问题，质疑辉煌历史是否反成负担。"
+    threads:
+      - bid: 2
+        tid: 2368
+        title: "车协的敌人"
+        author: "坐家"
+        date: "2004-10-11"
+        clicks: 2008
+        replies: 45
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=2368"
+      - bid: 1
+        tid: 1292
+        title: "规则制定者成了规则破坏者——给车协挑刺之一"
+        author: "坐家"
+        date: "2004-11-26"
+        clicks: 1967
+        replies: 38
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=1292"
+      - bid: 2
+        tid: 72
+        title: "制度的不合理"
+        author: "bruce"
+        date: "2001-11-19"
+        clicks: 581
+        replies: 28
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=72"
+      - bid: 1
+        tid: 15
+        title: "新的起点与终点，我们还要做的事……"
+        author: "飞轮"
+        date: "2001-08-16"
+        clicks: 672
+        replies: 23
+        role: "官方表态"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=15"
+      - bid: 2
+        tid: 8
+        title: "可以挥洒，可以放纵，但——永远不要沉溺"
+        author: "bobotree"
+        date: "2003-12-15"
+        clicks: 1176
+        replies: 40
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=8"
+      - bid: 4
+        tid: 472
+        title: "理事长寄语（完全版）"
+        author: "david"
+        date: "2002-04-07"
+        clicks: 963
+        replies: 38
+        role: "官方表态"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=472"
+    viewpoints:
+      - side: "规则批判派"
+        stance: "规则制定者自身破坏规则，辉煌历史反而成为治理惰性的遮羞布"
+        key_authors: ["坐家", "bruce"]
+      - side: "传承守护派"
+        stance: "协会精神需要延续，历史经验是宝贵财富而非包袱"
+        key_authors: ["飞轮", "david"]
+      - side: "理性反思派"
+        stance: "车协不应成为生活的全部，成员需要保持对现实的清醒认知"
+        key_authors: ["bobotree"]
+    outcomes:
+      - "推动了协会治理透明化讨论，为后续理事会改革埋下伏笔"
+      - "坐家的系列挑刺帖成为车协治理讨论的经典文本"
+      - "确立了'规则面前人人平等'的讨论基调"
+    related_controversies: ["ctrv-05", "ctrv-09"]
+
+  - id: ctrv-02
+    name: "老会员角色与代际张力"
+    period: "2003-2015"
+    intensity: medium
+    tags: [代际关系, 老会员, 角色边界]
+    summary: "老会员回归时的角色分寸、示范作用与代际文化冲突。核心争议是老会员是否把资历当特权，以及老会员扎堆对新会员融入的影响。"
+    threads:
+      - bid: 2
+        tid: 1138
+        title: "写给\"老队员\"们"
+        author: "萌萌"
+        date: "2003-10-27"
+        clicks: 852
+        replies: 41
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=1138"
+      - bid: 2
+        tid: 4498
+        title: "请\"老家伙\"们进"
+        author: "球球"
+        date: "2008-03-17"
+        clicks: 803
+        replies: 22
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4498"
+      - bid: 2
+        tid: 3485
+        title: "有关老会员扎堆（板儿砖）"
+        author: "神仙猪"
+        date: "2006-03-28"
+        clicks: 739
+        replies: 31
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=3485"
+      - bid: 2
+        tid: 4513
+        title: "也说\"老家伙\""
+        author: "白杨"
+        date: "2008-03-29"
+        clicks: 606
+        replies: 18
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4513"
+      - bid: 4
+        tid: 18512
+        title: "致老会员倡议书"
+        author: "蜜蜂"
+        date: "2015-09-21"
+        clicks: 557
+        replies: 14
+        role: "官方表态"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=18512"
+      - bid: 4
+        tid: 1452
+        title: "很久没拉练了"
+        author: "小修理工"
+        date: "2004-03-11"
+        clicks: 610
+        replies: 35
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=1452"
+    viewpoints:
+      - side: "新会员视角"
+        stance: "老会员不应把资历当特权，扎堆行为阻碍新会员融入协会"
+        key_authors: ["萌萌", "球球", "神仙猪"]
+      - side: "老会员辩护"
+        stance: "老会员回归是出于热爱，经验和示范对新会员成长有价值"
+        key_authors: ["白杨", "小修理工"]
+      - side: "制度倡导"
+        stance: "应通过倡议书等方式明确老会员的行为规范和责任"
+        key_authors: ["蜜蜂"]
+    outcomes:
+      - "2015年蜜蜂发布正式倡议书，试图规范老会员参与方式"
+      - "代际张力成为周期性话题，每逢换届和老会员回归时反复出现"
+      - "协会逐渐形成老会员'帮忙不添乱'的共识"
+    related_controversies: ["ctrv-01", "ctrv-13"]
+
+  - id: ctrv-03
+    name: "暑期选拔与落选创伤"
+    period: "2004-2016"
+    intensity: high
+    tags: [暑期选拔, 落选, 特批, 互评]
+    summary: "暑期选拔是车协最持续的情感创伤源。落选者的崩溃、特批制度的公平性质疑、互评机制的心理压力，以及选拔结果对成员关系的撕裂，贯穿十余年。"
+    threads:
+      - bid: 2
+        tid: 5895
+        title: "我为什么退出暑期"
+        author: "知了"
+        date: "2012-05-14"
+        clicks: 13231
+        replies: 231
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=5895"
+      - bid: 2
+        tid: 2052
+        title: "关于落选"
+        author: "近视"
+        date: "2004-05-14"
+        clicks: 768
+        replies: 18
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=2052"
+      - bid: 2
+        tid: 4219
+        title: "祝福他们！"
+        author: "祝福他们"
+        date: "2007-06-05"
+        clicks: 851
+        replies: 29
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4219"
+      - bid: 2
+        tid: 4221
+        title: "乱......"
+        author: "dundun"
+        date: "2007-06-05"
+        clicks: 752
+        replies: 34
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4221"
+      - bid: 2
+        tid: 4215
+        title: "纵然不能同行，还能一同遥望祝福"
+        author: "豆豆狐"
+        date: "2007-06-03"
+        clicks: 673
+        replies: 20
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4215"
+      - bid: 2
+        tid: 4214
+        title: "是时候了"
+        author: "陈佳"
+        date: "2007-06-03"
+        clicks: 578
+        replies: 21
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4214"
+      - bid: 2
+        tid: 2055
+        title: "不知道用什么标题比较好"
+        author: "神仙猪"
+        date: "2004-05-15"
+        clicks: 1821
+        replies: 61
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=2055"
+      - bid: 2
+        tid: 7134
+        title: "申请民意投票"
+        author: "卡卡"
+        date: "2017-05-19"
+        clicks: 1596
+        replies: 13
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=7134"
+      - bid: 2
+        tid: 5670
+        title: "随便写写。"
+        author: "轩辕06"
+        date: "2011-05-17"
+        clicks: 669
+        replies: 33
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=5670"
+      - bid: 2
+        tid: 2030
+        title: "04届的车协人是一家。团结，团结，团结，不分家！"
+        author: "阿风"
+        date: "2004-05-11"
+        clicks: 802
+        replies: 35
+        role: "官方表态"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=2030"
+    viewpoints:
+      - side: "落选者/退出者"
+        stance: "选拔过程缺乏透明度，特批制度损害公平，互评造成巨大心理压力"
+        key_authors: ["知了", "近视", "dundun", "卡卡"]
+      - side: "制度维护者"
+        stance: "选拔需要综合考量，特批有其合理性，互评是必要的民主机制"
+        key_authors: ["阿风", "豆豆狐"]
+      - side: "情感呼吁者"
+        stance: "无论结果如何，大家仍是同一个协会的人，不应因选拔撕裂关系"
+        key_authors: ["神仙猪", "祝福他们", "陈佳"]
+    outcomes:
+      - "知了帖（13231点击）成为车协历史上点击最高的暑期相关帖之一"
+      - "特批制度和互评机制在后续年份持续受到质疑和改进讨论"
+      - "每年选拔季（4-6月）成为论坛情感波动的高峰期"
+    related_controversies: ["ctrv-11", "ctrv-07", "ctrv-04"]
+
+  - id: ctrv-04
+    name: "纪律、安全与下坡争议"
+    period: "2004-2021"
+    intensity: high
+    tags: [纪律, 安全, 下坡, 追队, 头盔]
+    summary: "下坡安全、追队离队、头盔规范等纪律议题反复出现。核心张力是安全vs效率、纪律vs自由。李杏2013年帖将纪律讨论推向高潮，火日立2021年提议取消天盛湖拉练引发安全标准争论。"
+    threads:
+      - bid: 2
+        tid: 2204
+        title: "小不忍则乱大谋"
+        author: "近视"
+        date: "2004-06-24"
+        clicks: 1061
+        replies: 20
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=2204"
+      - bid: 2
+        tid: 6246
+        title: "我也说纪律"
+        author: "李杏"
+        date: "2013-11-25"
+        clicks: 1934
+        replies: 74
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6246"
+      - bid: 4
+        tid: 19792
+        title: "我为什么建议天盛湖正式拉练取消"
+        author: "火日立"
+        date: "2021-04-13"
+        clicks: 1997
+        replies: 16
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19792"
+      - bid: 4
+        tid: 19039
+        title: "当追离队变成风气?"
+        author: "人输元"
+        date: "2016-10-20"
+        clicks: 1557
+        replies: 13
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19039"
+      - bid: 4
+        tid: 18783
+        title: "关于八达岭下坡的疑惑"
+        author: "圾洞"
+        date: "2016-03-20"
+        clicks: 1466
+        replies: 13
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=18783"
+      - bid: 1
+        tid: 1372
+        title: "关于铁壁银山拉练中违纪行为的处罚决定"
+        author: "主席团"
+        date: "2004-12-24"
+        clicks: 720
+        replies: 19
+        role: "官方表态"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=1372"
+      - bid: 1
+        tid: 1847
+        title: "北京大学自行车协会出行纪律处罚条例"
+        author: "主席团"
+        date: "2005-10-13"
+        clicks: 671
+        replies: 23
+        role: "制度文本"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=1847"
+      - bid: 1
+        tid: 1321
+        title: "北京大学自行车协会对违纪行为的处罚条例"
+        author: "主席团"
+        date: "2004-12-06"
+        clicks: 523
+        replies: 14
+        role: "制度文本"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=1321"
+      - bid: 2
+        tid: 6254
+        title: "我也说说\"纪律\"的功用"
+        author: "Axe"
+        date: "2013-11-27"
+        clicks: 1263
+        replies: 35
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6254"
+      - bid: 4
+        tid: 15607
+        title: "关于王裕|非攻摔车及后续情况的说明"
+        author: "九哨"
+        date: "2012-04-03"
+        clicks: 978
+        replies: 56
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=15607"
+    viewpoints:
+      - side: "纪律优先派"
+        stance: "安全是底线，纪律是保障，下坡压速和禁止追队必须严格执行"
+        key_authors: ["近视", "李杏", "人输元"]
+      - side: "效率自由派"
+        stance: "过度纪律约束损害骑行体验，应根据能力分级管理而非一刀切"
+        key_authors: ["Axe", "圾洞"]
+      - side: "安全标准派"
+        stance: "高风险路线应提高安全标准甚至取消，不应以传统为由维持危险活动"
+        key_authors: ["火日立", "九哨"]
+    outcomes:
+      - "主席团多次出台纪律处罚条例，形成较完善的违纪处理制度"
+      - "头盔佩戴和编队骑行成为强制性要求"
+      - "火日立2021年提议推动了对高风险拉练路线的重新评估"
+    related_controversies: ["ctrv-09", "ctrv-11", "ctrv-03"]
+
+  - id: ctrv-05
+    name: "理事会权力与版务治理"
+    period: "2002-2013"
+    intensity: high
+    tags: [版务, 删帖, 封禁, 理事会]
+    summary: "版务权力来源、删帖标准和封禁合法性反复引发争议。2013年甘道夫被封禁后发帖系统质疑治理合法性，2011年庄生锁帖事件则聚焦版主特权边界。"
+    threads:
+      - bid: 2
+        tid: 6257
+        title: "既然解了封，那就让我先说完这段话再farewell"
+        author: "甘道夫"
+        date: "2013-11-27"
+        clicks: 1333
+        replies: 38
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6257"
+      - bid: 4
+        tid: 15042
+        title: "关于水版版主庄生锁帖删帖等特权使用的讨论"
+        author: "庄生"
+        date: "2011-11-06"
+        clicks: 693
+        replies: 50
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=15042"
+      - bid: 2
+        tid: 159
+        title: "关于被删掉的贴子"
+        author: "飞轮"
+        date: "2002-04-16"
+        clicks: 541
+        replies: 29
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=159"
+      - bid: 2
+        tid: 6479
+        title: "这样好不好"
+        author: "足音管理员"
+        date: "2014-12-27"
+        clicks: 1391
+        replies: 15
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6479"
+    viewpoints:
+      - side: "版务批判派"
+        stance: "版务权力缺乏制衡，删帖封禁标准不透明，损害论坛公信力"
+        key_authors: ["甘道夫", "庄生"]
+      - side: "版务维护派"
+        stance: "版务需要一定裁量权来维护论坛秩序，不能放任不文明言论"
+        key_authors: ["飞轮", "足音管理员"]
+    outcomes:
+      - "版务治理成为车协BBS的长期敏感话题，多次引发大规模争论"
+      - "推动了版务操作透明化的讨论，但实质性改革有限"
+      - "甘道夫事件成为2013治理危机的重要组成部分"
+    related_controversies: ["ctrv-01", "ctrv-09", "ctrv-10"]
+
+  - id: ctrv-06
+    name: "宣传与组织产出争议"
+    period: "2004-2016"
+    intensity: low
+    tags: [宣传, 出摊, 徽章, 工作质量]
+    summary: "宣传效果、出摊执行质量和招新收费等问题。2012年质疑宣传部反复发传单的意义引发百楼讨论，2011年徽章设计被公开批评要求返工。"
+    threads:
+      - bid: 4
+        tid: 16284
+        title: "突然想到一个问题"
+        author: "我是匿名天使"
+        date: "2012-12-07"
+        clicks: 2849
+        replies: 100
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=16284"
+      - bid: 4
+        tid: 15026
+        title: "关于徽章"
+        author: "狐蝶"
+        date: "2011-11-03"
+        clicks: 999
+        replies: 40
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=15026"
+      - bid: 4
+        tid: 18775
+        title: "今天出摊收获好大啊..."
+        author: "暖玉生烟"
+        date: "2016-03-18"
+        clicks: 1023
+        replies: 17
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=18775"
+      - bid: 4
+        tid: 18708
+        title: "致招新的同学们"
+        author: "小刀"
+        date: "2016-03-01"
+        clicks: 1664
+        replies: 18
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=18708"
+      - bid: 4
+        tid: 14396
+        title: "三角地出摊有感"
+        author: "斯图"
+        date: "2011-03-18"
+        clicks: 543
+        replies: 26
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=14396"
+    viewpoints:
+      - side: "质量批判派"
+        stance: "宣传工作重形式轻效果，出摊执行不到位，徽章等产出质量不达标"
+        key_authors: ["我是匿名天使", "狐蝶", "斯图"]
+      - side: "执行辩护派"
+        stance: "宣传工作有其难处，出摊需要人手和时间投入，不应求全责备"
+        key_authors: ["暖玉生烟", "小刀"]
+    outcomes:
+      - "推动了宣传工作效果的反思，但改进有限"
+      - "徽章帖被锁定，显示管理层对公开批评产出的敏感态度"
+      - "出摊执行规范在后续有所加强"
+    related_controversies: ["ctrv-07"]
+
+  - id: ctrv-07
+    name: "暑期主题与社会考察定位"
+    period: "2004-2017"
+    intensity: medium
+    tags: [暑期主题, 学术部, 社考, 骑行定位]
+    summary: "暑期主题的社会价值、学术部去留、社考与骑行的关系定位。赞助商依赖程度也是组织独立性的长期隐忧。"
+    threads:
+      - bid: 2
+        tid: 3562
+        title: "关于暑期主题，所有希望去暑期的人都来关注一下"
+        author: "Vincent"
+        date: "2006-05-04"
+        clicks: 971
+        replies: 39
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=3562"
+      - bid: 1
+        tid: 1108
+        title: "学术部：改革还是放弃"
+        author: "star"
+        date: "2004-09-28"
+        clicks: 1189
+        replies: 16
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=1&tid=1108"
+      - bid: 2
+        tid: 7018
+        title: "我承认我不曾历经沧桑"
+        author: "祭酒"
+        date: "2017-03-19"
+        clicks: 1093
+        replies: 16
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=7018"
+      - bid: 2
+        tid: 6476
+        title: "我们同赞助商是怎样的关系？"
+        author: "李杏"
+        date: "2014-12-22"
+        clicks: 1840
+        replies: 31
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6476"
+    viewpoints:
+      - side: "社考价值派"
+        stance: "暑期主题和社会考察是车协区别于普通骑行团的核心价值"
+        key_authors: ["Vincent", "祭酒"]
+      - side: "务实改革派"
+        stance: "学术部形式大于实质，需要改革或取消，将精力放在骑行本身"
+        key_authors: ["star"]
+      - side: "独立性关切派"
+        stance: "过度依赖赞助商损害协会独立性，应重新审视合作边界"
+        key_authors: ["李杏"]
+    outcomes:
+      - "学术部经历多次改革讨论，职能逐渐弱化"
+      - "暑期主题的制定参与机制有所改进，增加了公开讨论环节"
+      - "赞助商关系成为年度讨论议题"
+    related_controversies: ["ctrv-03", "ctrv-10"]
+
+  - id: ctrv-08
+    name: "2011性别与平权风波"
+    period: "2011"
+    intensity: high
+    tags: [性别, 平权, 分工, 拉练秩序]
+    summary: "2011年集中爆发的性别议题。木_木帖47555点击创论坛记录，批评拉练中男生不照顾落单女生；朱雀帖质疑文体部分工存在性别偏向与权力不平等。"
+    threads:
+      - bid: 4
+        tid: 14419
+        title: "我想说几句"
+        author: "木_木"
+        date: "2011-03-21"
+        clicks: 47555
+        replies: 18
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=14419"
+      - bid: 2
+        tid: 5564
+        title: "其实一些话憋在我心里很久很久了"
+        author: "朱雀"
+        date: "2011-03-24"
+        clicks: 3130
+        replies: 98
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=5564"
+    viewpoints:
+      - side: "性别平等诉求"
+        stance: "拉练中女生被忽视，文体部分工存在性别歧视，需要正视性别不平等问题"
+        key_authors: ["木_木", "朱雀"]
+      - side: "传统运作模式"
+        stance: "车协以体能为基础运作，部分差异是客观现实而非歧视"
+        key_authors: []
+      - side: "制度改革建议"
+        stance: "应在制度层面保障女性成员权益，改进拉练中的照顾机制"
+        key_authors: []
+    outcomes:
+      - "木_木帖47555点击成为车协BBS历史最高点击帖"
+      - "推动了对拉练中性别关怀的关注，后续拉练加强了落单照顾"
+      - "性别议题在协会讨论中长期保持敏感性"
+    related_controversies: ["ctrv-04", "ctrv-13"]
+
+  - id: ctrv-09
+    name: "2013治理危机"
+    period: "2013"
+    intensity: high
+    tags: [治理危机, 一团和气, 理事会, 自由vs规则]
+    summary: "2013年是治理讨论的爆发年。甘道夫清算三年人事问题（16764点击289回复），harryCASI借\"自由车协会\"讨论规则束缚，纪律讨论集中爆发。表面和气vs深层矛盾成为核心议题。"
+    threads:
+      - bid: 2
+        tid: 6119
+        title: "三年前的一团和气"
+        author: "甘道夫"
+        date: "2013-05-05"
+        clicks: 16764
+        replies: 289
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6119"
+      - bid: 2
+        tid: 6256
+        title: "我提议成立这么个协会"
+        author: "harryCASI"
+        date: "2013-11-27"
+        clicks: 2026
+        replies: 37
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6256"
+      - bid: 2
+        tid: 6258
+        title: "多少误会来自不了解"
+        author: "小千"
+        date: "2013-11-27"
+        clicks: 700
+        replies: 23
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6258"
+      - bid: 2
+        tid: 6254
+        title: "我也说说\"纪律\"的功用"
+        author: "Axe"
+        date: "2013-11-27"
+        clicks: 1263
+        replies: 35
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6254"
+      - bid: 2
+        tid: 6246
+        title: "我也说纪律"
+        author: "李杏"
+        date: "2013-11-25"
+        clicks: 1934
+        replies: 74
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6246"
+    viewpoints:
+      - side: "治理清算派"
+        stance: "过去三年的人事问题和一团和气掩盖了深层矛盾，需要彻底清算"
+        key_authors: ["甘道夫"]
+      - side: "自由反思派"
+        stance: "过多的规则和暑期导向束缚了协会活力，应回归自由骑行的本质"
+        key_authors: ["harryCASI"]
+      - side: "沟通理解派"
+        stance: "很多矛盾源于信息不对称和缺乏了解，应加强内部沟通"
+        key_authors: ["小千"]
+    outcomes:
+      - "甘道夫帖（16764点击289回复）成为车协治理讨论的标志性事件"
+      - "2013年11月集中爆发多个纪律和治理讨论帖，形成'治理周'"
+      - "推动了理事会对治理透明度的关注，但深层结构性问题未解"
+    related_controversies: ["ctrv-01", "ctrv-04", "ctrv-05"]
+
+  - id: ctrv-10
+    name: "赞助商关系与共识争论"
+    period: "2014-2015"
+    intensity: medium
+    tags: [赞助商, 共识, 版务延续]
+    summary: "2014年末围绕赞助商关系、协会共同价值和版务处理的连续争论。猿发帖追问协会的基本共识，足音管理员因删不文明言论引发延续讨论。番茄09的\"车协解剖学\"尝试系统剖析协会结构。"
+    threads:
+      - bid: 2
+        tid: 6476
+        title: "我们同赞助商是怎样的关系？"
+        author: "李杏"
+        date: "2014-12-22"
+        clicks: 1840
+        replies: 31
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6476"
+      - bid: 2
+        tid: 6478
+        title: "让我们谈一谈共识吧"
+        author: "猿"
+        date: "2014-12-27"
+        clicks: 1345
+        replies: 22
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6478"
+      - bid: 2
+        tid: 6479
+        title: "这样好不好"
+        author: "足音管理员"
+        date: "2014-12-27"
+        clicks: 1391
+        replies: 15
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6479"
+      - bid: 2
+        tid: 6956
+        title: "车协解剖学——"
+        author: "番茄09"
+        date: "2016-11-01"
+        clicks: 1683
+        replies: 23
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=6956"
+    viewpoints:
+      - side: "独立性关切"
+        stance: "赞助商关系需要明确边界，过度依赖会损害协会的独立判断"
+        key_authors: ["李杏"]
+      - side: "共识追问派"
+        stance: "协会缺乏基本共识，连'骑车是否是协会本质'都无法达成一致"
+        key_authors: ["猿"]
+      - side: "系统分析派"
+        stance: "需要从结构和文化层面系统剖析协会，才能找到问题根源"
+        key_authors: ["番茄09"]
+    outcomes:
+      - "李杏的赞助商关系讨论成为年度重要议题"
+      - "猿的'共识'追问揭示了协会价值观的深层分歧"
+      - "番茄09的'车协解剖学'开启了系统分析协会结构的尝试"
+    related_controversies: ["ctrv-05", "ctrv-07", "ctrv-09"]
+
+  - id: ctrv-11
+    name: "2016互评与追队文化危机"
+    period: "2016-2017"
+    intensity: medium
+    tags: [互评, 追队, 散群, 双重标准]
+    summary: "2016-2017年互评机制、追队离队常态化和散群双重标准集中爆发。可爱多帖表达被中伤的感受，如意质疑群管理双标，马丁讨论官方民间差异。"
+    threads:
+      - bid: 2
+        tid: 7397
+        title: "想说的话。。"
+        author: "可爱多"
+        date: "2018-06-04"
+        clicks: 2238
+        replies: 21
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=7397"
+      - bid: 4
+        tid: 19039
+        title: "当追离队变成风气?"
+        author: "人输元"
+        date: "2016-10-20"
+        clicks: 1557
+        replies: 13
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19039"
+      - bid: 4
+        tid: 19416
+        title: "为什么非暑期团群要散而暑期团不散"
+        author: "如意"
+        date: "2017-10-17"
+        clicks: 1533
+        replies: 17
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19416"
+      - bid: 4
+        tid: 18835
+        title: "Re: 我能问一下为什么每次拉练完了都必须要散群么？"
+        author: "天狼星"
+        date: "2016-04-07"
+        clicks: 1672
+        replies: 22
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=18835"
+      - bid: 4
+        tid: 19309
+        title: "互评之后"
+        author: "虚怀"
+        date: "2017-05-20"
+        clicks: 1496
+        replies: 17
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19309"
+      - bid: 4
+        tid: 19417
+        title: "论\"官方\"和\"民间\"的双重标准及其引申问题"
+        author: "马丁Martínez"
+        date: "2017-10-17"
+        clicks: 679
+        replies: 11
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19417"
+    viewpoints:
+      - side: "互评受害方"
+        stance: "互评机制产生大量负面评价和中伤，对被评者造成心理伤害"
+        key_authors: ["可爱多", "虚怀"]
+      - side: "纪律维护方"
+        stance: "追队离队已成风气，严重破坏拉练纪律和队伍安全"
+        key_authors: ["人输元"]
+      - side: "双标质疑方"
+        stance: "暑期团和非暑期团、官方和民间存在明显的双重标准"
+        key_authors: ["如意", "天狼星", "马丁Martínez"]
+    outcomes:
+      - "互评机制的心理负面影响得到更多关注"
+      - "追队离队问题引发对拉练文化的深层反思"
+      - "散群双标问题揭示了协会管理中的不平等待遇"
+    related_controversies: ["ctrv-03", "ctrv-04", "ctrv-09"]
+
+  - id: ctrv-12
+    name: "论坛存废与平台迁移"
+    period: "2017-2019"
+    intensity: medium
+    tags: [论坛, 平台, 隐私, QQ群]
+    summary: "2018年论坛功能不足、隐私风险和互动规范的集中讨论。Eve提议关闭论坛改用QQ群，金木质疑论坛表达边界，春卷质疑执委会总结方式变化。"
+    threads:
+      - bid: 4
+        tid: 19612
+        title: "能否关闭车协线上论坛？用qq群代替"
+        author: "Eve"
+        date: "2018-11-21"
+        clicks: 1931
+        replies: 29
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19612"
+      - bid: 4
+        tid: 19587
+        title: "车协论坛，你到底要我回复什么？"
+        author: "金木"
+        date: "2018-10-05"
+        clicks: 761
+        replies: 8
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19587"
+      - bid: 4
+        tid: 19601
+        title: "车协可真是牛逼！"
+        author: "hjkdhfjhjkfz"
+        date: "2018-10-28"
+        clicks: 989
+        replies: 12
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19601"
+      - bid: 4
+        tid: 19637
+        title: "好久没去过执委会了"
+        author: "春卷"
+        date: "2019-04-09"
+        clicks: 580
+        replies: 8
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19637"
+    viewpoints:
+      - side: "平台迁移派"
+        stance: "论坛功能陈旧且存在隐私风险，QQ群更适合当代沟通习惯"
+        key_authors: ["Eve"]
+      - side: "论坛守护派"
+        stance: "论坛是协会历史和文化的重要载体，关闭将导致集体记忆断裂"
+        key_authors: ["金木"]
+      - side: "形式变化关切"
+        stance: "执委会等组织形式的变化反映了协会传统在流失"
+        key_authors: ["春卷"]
+    outcomes:
+      - "论坛最终未被关闭，但活跃度持续下降"
+      - "讨论了论坛作为组织记忆载体的不可替代性"
+      - "平台迁移问题在后续年份随着微信群等工具普及再次出现"
+    related_controversies: ["ctrv-05", "ctrv-13"]
+
+  - id: ctrv-13
+    name: "成员疏离与风气之忧"
+    period: "2020-2024"
+    intensity: medium
+    tags: [疏离, 自私主义, 组织理念]
+    summary: "2020年代成员疏离感和风气之忧。粉容容从追队疏离体验出发反思融入问题（2539点击），弹丸论破批评对体力弱者的抱怨，峰林帖4942点击直接反对某种组织理念。"
+    threads:
+      - bid: 2
+        tid: 7763
+        title: "Antisocial"
+        author: "粉容容"
+        date: "2020-12-01"
+        clicks: 2539
+        replies: 23
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=7763"
+      - bid: 2
+        tid: 8453
+        title: "警惕自私主义在车协蔓延-上午看群聊，忍不住说想的"
+        author: "弹丸论破"
+        date: "2024-04-30"
+        clicks: 1882
+        replies: 12
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=8453"
+      - bid: 2
+        tid: 8424
+        title: "我反对bbzb——近期读总结，忍不住想说的"
+        author: "峰林"
+        date: "2024-03-20"
+        clicks: 4942
+        replies: 36
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=8424"
+      - bid: 2
+        tid: 8199
+        title: "\"爱\"与车协的三重关系"
+        author: "马丁Martínez"
+        date: "2023-03-15"
+        clicks: 3051
+        replies: 9
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=8199"
+      - bid: 4
+        tid: 19909
+        title: "分享几个小故事"
+        author: "小奶猫"
+        date: "2023-03-13"
+        clicks: 3153
+        replies: 30
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19909"
+    viewpoints:
+      - side: "疏离体验者"
+        stance: "追队文化、体力歧视和冷漠氛围让部分成员感到被排斥"
+        key_authors: ["粉容容", "弹丸论破"]
+      - side: "理念批判者"
+        stance: "某些组织理念和处理方式偏离了协会初心，需要直接反对"
+        key_authors: ["峰林"]
+      - side: "关系重建者"
+        stance: "应从爱自己、爱他人到爱协会三个层面重建成员与组织的连接"
+        key_authors: ["马丁Martínez", "小奶猫"]
+    outcomes:
+      - "峰林帖4942点击显示成员对组织理念偏离的强烈不满"
+      - "弹丸论破的'自私主义'批评引发对体力歧视问题的关注"
+      - "2020年代疏离感成为新一代成员的普遍感受"
+    related_controversies: ["ctrv-02", "ctrv-11", "ctrv-08"]
+
+  - id: ctrv-14
+    name: "借车制度与边界意识"
+    period: "2007-2021"
+    intensity: low
+    tags: [借车, 边界, 爱惜公物]
+    summary: "借车权责边界和成员边界意识的长期议题。从2007年juzi提出借车规范，到2019年焕少批评擅自拿他人车练修车，到2021年咕孤专门讨论借车事项。"
+    threads:
+      - bid: 2
+        tid: 4022
+        title: "提一些关于借车的东西吧"
+        author: "juzi"
+        date: "2007-04-04"
+        clicks: 930
+        replies: 26
+        role: "核心引爆"
+        url: "https://chexie.net/bbs/content/?bid=2&tid=4022"
+      - bid: 4
+        tid: 19821
+        title: "借车二三事"
+        author: "咕孤"
+        date: "2021-11-12"
+        clicks: 794
+        replies: 11
+        role: "后续延续"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19821"
+      - bid: 4
+        tid: 19633
+        title: "贵协会员现在都这么牛逼了么"
+        author: "焕少"
+        date: "2019-03-29"
+        clicks: 958
+        replies: 9
+        role: "重要回应"
+        url: "https://chexie.net/bbs/content/?bid=4&tid=19633"
+    viewpoints:
+      - side: "规范倡导者"
+        stance: "借车需要明确权责，沟通先行，爱惜车辆是基本要求"
+        key_authors: ["juzi", "咕孤"]
+      - side: "边界维护者"
+        stance: "擅自拿他人车辆练修车是越界行为，尊重他人财产是底线"
+        key_authors: ["焕少"]
+    outcomes:
+      - "借车规范在2021年被再次整理和置顶"
+      - "边界意识问题从小议题折射出协会成员素质变化"
+      - "推动了借车登记制度的完善"
+    related_controversies: ["ctrv-02"]

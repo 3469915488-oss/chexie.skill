@@ -1,0 +1,153 @@
+# 北大车协事件框架
+# 定义论坛讨论中常见的事件类型及其结构化字段
+# 分析模式自动将帖子映射到对应事件结构
+
+events:
+  拉练:
+    description: "骑行训练活动，单日或双日"
+    detect:
+      title_keywords: ["双日", "单日", "拉练", "前站", "正式", "社考"]
+      board: ["车协工作区", "行者足音"]
+    fields:
+      route:
+        description: "拉练路线名"
+        type: entity
+        source: routes.json
+        required: true
+      year:
+        description: "年份"
+        type: regex
+        pattern: "(?:20)?([0-9]{2})(?=春|秋|暑|冬|双日|单日|拉练)"
+      group:
+        description: "组别（A组/B组）"
+        type: regex
+        pattern: "[AB](\\d)?组?"
+      date:
+        description: "活动日期"
+        type: post_meta
+        field: "time"
+    roles:
+      - "押后"
+      - "队医"
+      - "队长"
+      - "领队"
+      - "前站"
+      - "留口"
+      - "前旗"
+      - "后旗"
+      - "前助"
+    phases:
+      - name: "集合"
+        keywords: ["集合", "出发"]
+      - name: "检车"
+        keywords: ["检车", "检查车辆"]
+      - name: "骑行中"
+        keywords: ["骑行", "爬坡", "放坡", "途中"]
+      - name: "午饭"
+        keywords: ["午饭", "吃饭", "休息"]
+      - name: "回程"
+        keywords: ["回程", "返程", "收队"]
+    output_types:
+      - name: "队长总结"
+        detect_keywords: ["队长总结", "领队总结", "拉练总结"]
+      - name: "押后日志"
+        detect_keywords: ["押后日志", "押后总结", "押后记录"]
+      - name: "队医日志"
+        detect_keywords: ["队医日志", "队医总结", "队医记录"]
+      - name: "财务报告"
+        detect_keywords: ["财务", "花费", "费用", "AA"]
+    problems:
+      - name: "扎胎/爆胎"
+        keywords: ["扎胎", "爆胎", "漏气", "蛇咬", "补胎"]
+      - name: "摔车"
+        keywords: ["摔车", "摔", "事故"]
+      - name: "中暑"
+        keywords: ["中暑", "热", "头晕", "恶心"]
+      - name: "抽筋/肌肉问题"
+        keywords: ["抽筋", "肌肉", "腿疼", "膝盖"]
+      - name: "机械故障"
+        keywords: ["蹭碟", "异响", "变速不准", "掉链", "断条"]
+      - name: "体力不支"
+        keywords: ["体力", "跟不上", "掉队", "推车"]
+      - name: "迟到/拖沓"
+        keywords: ["迟到", "拖沓", "等人", "耽误"]
+
+  执委会:
+    description: "协会执委会会议记录"
+    detect:
+      title_keywords: ["执委会", "理事会"]
+      board: ["车协工作区"]
+    fields:
+      session:
+        description: "第几次执委会"
+        type: regex
+        pattern: "第[一二三四五六七八九十百零〇0-9]+次"
+      date:
+        description: "会议日期"
+        type: post_meta
+        field: "time"
+      type:
+        description: "会议类型"
+        type: enum
+        values: ["常会", "临时", "扩大会"]
+    output_types:
+      - name: "会议记录"
+        detect_keywords: ["会议记录", "会议纪要"]
+      - name: "表决结果"
+        detect_keywords: ["表决", "投票", "决议", "通过"]
+
+  出摊:
+    description: "义务修车活动"
+    detect:
+      title_keywords: ["出摊", "修车"]
+      board: ["车协工作区"]
+    fields:
+      date:
+        type: post_meta
+        field: "time"
+      number:
+        description: "第几次出摊"
+        type: regex
+        pattern: "第[一二三四五六七八九十]+次"
+    output_types:
+      - name: "出摊通知"
+        detect_keywords: ["通知", "出摊"]
+      - name: "出摊总结"
+        detect_keywords: ["总结", "出摊"]
+
+  拉练报名:
+    description: "拉练报名帖"
+    detect:
+      title_keywords: ["报名", "名额", "名单"]
+      board: ["车协工作区"]
+    fields:
+      route:
+        type: entity
+        source: routes.json
+      date:
+        type: post_meta
+        field: "time"
+    output_types:
+      - name: "报名帖"
+        detect_keywords: ["报名", "开放报名"]
+      - name: "名单确认"
+        detect_keywords: ["名单", "确认", "截止"]
+
+  修车讲座:
+    description: "实践部修车教学讲座"
+    detect:
+      title_keywords: ["修车讲座", "修车练习", "押后自习"]
+      board: ["车协工作区"]
+    fields:
+      number:
+        type: regex
+        pattern: "第[一二三四五六七八九十]+次"
+      topic:
+        description: "讲座主题"
+        type: text_match
+        keywords: ["补胎", "变速", "刹车", "中轴", "碗组", "综合"]
+    output_types:
+      - name: "讲座通知"
+        detect_keywords: ["讲座", "通知"]
+      - name: "讲座总结"
+        detect_keywords: ["总结", "记录"]

@@ -19,11 +19,39 @@ os.environ.setdefault("HF_HUB_OFFLINE", "1")
 ROOT = Path("/opt/chexie-knowledge")
 INDEX_PATH = ROOT / "faiss_index.bin"
 META_PATH = ROOT / "faiss_meta.jsonl"
-MODEL_NAME = "shibing624/text2vec-base-chinese"
+MODEL_NAME = "BAAI/bge-small-zh-v1.5"
 MODEL_PATH = Path(
-    "/home/ubuntu/.cache/huggingface/hub/models--shibing624--text2vec-base-chinese/"
-    "snapshots/183bb99aa7af74355fb58d16edf8c13ae7c5433e"
+    "/opt/wiki/models/models--BAAI--bge-small-zh-v1.5/"
+    "snapshots/7999e1d3359715c523056ef9478215996d62a620"
 )
+QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
+
+# === Board weights for authority-aware ranking ===
+BOARD_WEIGHTS = {
+    "车协工作区": 4.5,
+    "行者足音": 3.0,
+    "一技之长": 2.0,
+    "车友宝典": 1.5,
+    "纯净水": 1.0,
+}
+SOURCE_LABEL_WEIGHT = {"执委会": 0.5, "理事会": 0.5, "通知": 0.3, "制度": 0.3, "总结": 0.3}
+
+# === Entity index paths ===
+ENTITY_DIR = ROOT / "entities"
+TITLE_INDEX_PATH = ROOT / "title_index.bin"
+TITLE_META_PATH = ROOT / "title_meta.jsonl"
+
+# === Query type patterns ===
+EXACT_PATTERNS = [
+    r'(?:白河|禅房|十渡|妙峰|潭柘寺|九龙山|白羊沟|凤凰岭|慕田峪|十三陵|香山)',
+    r'(?:202[0-9]|19[0-9]{2}|[0-9]{2}(?:春|秋|暑|冬))',
+    r'(?:执委会|理事会|通知|制度|财务|报销|体测|报名)',
+]
+FUZZY_PATTERNS = [
+    r'(?:问题|怎么办|处理|解决|方案|争议|讨论|怎么看|经验|教训|总结|复盘)',
+    r'(?:出了|遇到过|以前|之前|之前有没有|历史)',
+    r'(?:请教|求助|求问|想问|问一下)',
+]
 
 KEYWORDS = [
     "远征",
@@ -78,11 +106,68 @@ def resources() -> tuple[Any, list[dict[str, Any]], SentenceTransformer]:
     return index, meta, model
 
 
+@lru_cache(maxsize=1)
+def title_resources() -> tuple[Any, list[dict[str, Any]], SentenceTransformer] | None:
+    """Load title index + meta. Returns None if not yet built."""
+    if not TITLE_INDEX_PATH.exists() or not TITLE_META_PATH.exists():
+        return None
+    t_idx = faiss.read_index(str(TITLE_INDEX_PATH))
+    t_meta: list[dict[str, Any]] = []
+    with TITLE_META_PATH.open("r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                t_meta.append(json.loads(line))
+    _, _, model = resources()  # reuse same model
+    return t_idx, t_meta, model
+
+
+@lru_cache(maxsize=1)
+def entity_index() -> dict[str, dict[str, list[int]]]:
+    entities: dict[str, dict[str, list[int]]] = {}
+    for name in ("routes", "problems", "roles", "years"):
+        path = ENTITY_DIR / f"{name}.json"
+        if path.exists():
+            entities[name] = json.loads(path.read_text(encoding="utf-8"))
+        else:
+            entities[name] = {}
+    return entities
+
+
 def source_of(row: dict[str, Any]) -> dict[str, Any]:
     source = row.get("source") or row.get("meta") or {}
     if not isinstance(source, dict):
         source = {}
     return source
+
+
+def detect_query_type(query: str) -> str:
+    """Classify query as 'exact', 'fuzzy', or 'mixed'."""
+    import re
+    exact_score = 0
+    fuzzy_score = 0
+    for pat in EXACT_PATTERNS:
+        if re.search(pat, query):
+            exact_score += 1
+    for pat in FUZZY_PATTERNS:
+        if re.search(pat, query):
+            fuzzy_score += 1
+    if exact_score > 0 and fuzzy_score > 0:
+        return "mixed"
+    if exact_score > 0:
+        return "exact"
+    if fuzzy_score > 0:
+        return "fuzzy"
+    return "mixed"  # default
+
+
+def board_weight(source: dict[str, Any]) -> float:
+    board = str(source.get("board") or "")
+    bw = BOARD_WEIGHTS.get(board, 1.0)
+    label = str(source.get("source_label") or "")
+    for kw, lw in SOURCE_LABEL_WEIGHT.items():
+        if kw in label or kw in str(source.get("title") or ""):
+            bw += lw
+    return bw
 
 
 def text_of(row: dict[str, Any]) -> str:
@@ -142,7 +227,7 @@ def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, 
         candidate_k = max(top_k * 30, 150)
     candidate_k = min(candidate_k, len(meta))
 
-    vec = model.encode([query], normalize_embeddings=True, show_progress_bar=False)
+    vec = model.encode([QUERY_INSTRUCTION + query], normalize_embeddings=True, show_progress_bar=False)
     vec = np.asarray(vec, dtype="float32")
     scores, ids = index.search(vec, candidate_k)
 
@@ -318,17 +403,25 @@ def main() -> None:
     parser.add_argument("--info", action="store_true")
     parser.add_argument("--pipeline", "-p", action="store_true",
                         help="Use enhanced pipeline (deep search + content filter)")
+    parser.add_argument("--analyze", "-a", action="store_true",
+                        help="Generate structured topic analysis (powers --pipeline)")
     parser.add_argument("--bm25", action="store_true",
                         help="Enable BM25 keyword search (requires ~15s init)")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    if args.pipeline:
+    # Auto-detect analyze for question-type queries
+    qtype = detect_query_type(args.query or "")
+
+    if args.pipeline or args.analyze or qtype in ("fuzzy", "mixed"):
         from pipeline import search_pipeline
         if not args.query:
             parser.error("query required")
+        use_analyze = args.analyze or (args.query and any(
+            kw in args.query for kw in ("分析", "总结", "怎么回事", "怎么看", "讨论", "争议")))
         result = search_pipeline(args.query, top_k=args.top_k or 20,
-                                  use_bm25=args.bm25, verbose=args.verbose)
+                                  use_bm25=args.bm25, verbose=args.verbose,
+                                  analyze=use_analyze)
         print(result["output"])
         print(f"\n  [{result['time']}s]")
         return

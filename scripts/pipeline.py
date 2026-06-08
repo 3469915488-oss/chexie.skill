@@ -31,12 +31,19 @@ ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "faiss_index.bin"
 META_PATH = ROOT / "faiss_meta.jsonl"
 BM25_CACHE = ROOT / "bm25_index.jsonl"
-MODEL_NAME = "shibing624/text2vec-base-chinese"
+MODEL_NAME = "BAAI/bge-small-zh-v1.5"
+MODEL_DIR = "/opt/wiki/models"
+QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
 
 _meta_cache = None
 _thread_cache = None
 _faiss_cache = None
 _bm25_cache = None
+
+
+def meta_of(item: dict) -> dict:
+    """Normalize metadata access — build outputs 'source', pipeline uses 'meta'."""
+    return item.get("source") or item.get("meta") or {}
 
 LOCATION_ALIASES = {
     "白河": "白河", "官厅": "官厅", "松山": "松山", "琉璃庙": "琉璃庙",
@@ -44,6 +51,43 @@ LOCATION_ALIASES = {
     "妙峰": "妙峰", "黄花城": "黄花城", "八达岭": "八达岭", "白羊沟": "白羊沟",
     "蟒山": "蟒山", "慕田峪": "慕田峪", "潭柘寺": "潭柘寺",
 }
+
+# ── Query Type Detection ────────────────────────────────────────
+
+EXACT_KEYWORDS = [
+    # Specific terms that signal exact/factual queries
+    "报名", "人数", "名额", "费用", "多少钱", "截止日期",
+    "集合时间", "出发时间", "里程", "爬升", "路线", "路书",
+    "体测", "标准", "及格", "免测",
+    "保险", "报销", "发票", "预算",
+    "执委会", "理事会", "通知", "制度", "规定",
+    "装备", "团购", "价格",
+    "十渡", "妙峰", "白河", "松山", "官厅",
+    "春训", "秋训", "远征", "双日", "单日",
+    "队长", "前旗", "后旗", "押后", "队医",
+]
+
+FUZZY_KEYWORDS = [
+    # Terms that signal fuzzy/exploratory queries
+    "经验", "怎么做", "如何处理", "历史", "以前", "往年",
+    "问题", "教训", "总结", "复盘", "反思",
+    "争议", "讨论", "看法", "意见", "建议",
+    "为什么", "原因", "背景", "来龙去脉",
+    "优劣", "利弊", "好处", "坏处",
+]
+
+def detect_query_type(query: str) -> str:
+    """Detect query type for dynamic routing.
+    Returns: 'exact', 'fuzzy', or 'mixed'.
+    """
+    exact_hits = sum(1 for kw in EXACT_KEYWORDS if kw in query)
+    fuzzy_hits = sum(1 for kw in FUZZY_KEYWORDS if kw in query)
+    if exact_hits >= 2 and fuzzy_hits == 0:
+        return "exact"
+    elif fuzzy_hits >= 2 and exact_hits == 0:
+        return "fuzzy"
+    else:
+        return "mixed"
 
 # ── Content filter keywords ──────────────────────────────────────
 
@@ -90,11 +134,12 @@ def get_thread_index() -> dict[str, list[dict]]:
     meta = load_meta()
     threads = defaultdict(list)
     for item in meta:
-        tid = item.get("meta", {}).get("tid", "")
-        if tid:
+        m = meta_of(item)
+        tid = str(m.get("tid", ""))
+        if tid and tid != "0":
             threads[tid].append(item)
     for tid in threads:
-        threads[tid].sort(key=lambda x: x.get("meta", {}).get("chunk_index", 0))
+        threads[tid].sort(key=lambda x: meta_of(x).get("chunk_index", 0))
     _thread_cache = dict(threads)
     return _thread_cache
 
@@ -103,7 +148,7 @@ def get_faiss():
     if _faiss_cache is not None:
         return _faiss_cache
     index = faiss.read_index(str(INDEX_PATH))
-    model = SentenceTransformer(MODEL_NAME, device="cpu")
+    model = SentenceTransformer(MODEL_NAME, cache_folder=MODEL_DIR, device="cpu")
     _faiss_cache = (index, model)
     return _faiss_cache
 
@@ -181,16 +226,19 @@ def filter_thread_chunks(chunks: list[dict]) -> list[dict]:
 def thread_info(chunks: list[dict]) -> dict:
     if not chunks:
         return {}
-    m = chunks[0].get("meta", {})
+    m = meta_of(chunks[0])
+    bid = m.get("bid", 1)
+    tid = m.get("tid", 0)
     return {
-        "tid": m.get("tid", ""),
+        "tid": tid,
         "title": m.get("title", ""),
-        "author": m.get("thread_author", ""),
-        "date": m.get("thread_date", ""),
-        "bid": m.get("bid", ""),
+        "author": m.get("author", ""),
+        "date": m.get("time", ""),
+        "bid": bid,
         "board": m.get("board", ""),
-        "url": f"https://www.chexie.net/bbs/content/index.php?bid={m.get('bid',1)}&tid={m.get('tid',0)}&p=1",
+        "url": m.get("url", f"https://www.chexie.net/bbs/content/index.php?bid={bid}&tid={tid}&p=1"),
         "source_label": m.get("source_label", ""),
+        "floor": m.get("floor", ""),
     }
 
 # ── Year/Group utils ─────────────────────────────────────────────
@@ -211,15 +259,19 @@ def years_match(parsed_year: str | None, title: str) -> bool:
 def faiss_search(query: str, top_k: int = 25) -> list[dict]:
     index, model = get_faiss()
     meta = load_meta()
-    emb = model.encode([query], normalize_embeddings=True)
+    emb = model.encode([QUERY_INSTRUCTION + query], normalize_embeddings=True)
     scores, indices = index.search(np.array(emb, dtype=np.float32), top_k)
     results = []
     for score, idx in zip(scores[0], indices[0]):
         if idx < 0 or idx >= len(meta):
             continue
+        row = meta[idx]
+        chunk_id = row.get("id", f"bid{row.get('source',{}).get('bid','')}_tid{row.get('source',{}).get('tid','')}_idx{idx}")
         results.append({
-            "id": meta[idx]["id"], "text": meta[idx]["text"],
-            "meta": meta[idx].get("meta", {}), "score": float(score),
+            "id": chunk_id, "text": row["text"],
+            "source": row.get("source", row.get("meta", {})),
+            "meta": row.get("source", row.get("meta", {})),
+            "score": float(score),
         })
     return results
 
@@ -338,21 +390,25 @@ def aggregate_by_thread(chunks: list[dict]) -> list[dict]:
     threads = get_thread_index()
     t_scores, t_chunks = defaultdict(float), defaultdict(list)
     for item in chunks:
-        tid = item.get("meta", {}).get("tid", "")
-        if not tid:
+        m = meta_of(item)
+        tid = str(m.get("tid", ""))
+        if not tid or tid == "0":
             continue
         s = item.get("rrf_score", item.get("score", 0))
         t_scores[tid] = max(t_scores[tid], s)
         t_chunks[tid].append(item)
     results = []
     for tid, score in sorted(t_scores.items(), key=lambda x: x[1], reverse=True):
+        # Full-thread retrieval: pull ALL chunks from the thread, not just hits
         all_c = threads.get(tid, t_chunks[tid])
         filtered = filter_thread_chunks(all_c)
         results.append({
             "tid": tid, "info": thread_info(all_c),
             "score": round(score, 4),
             "filtered_chunks": filtered,
+            "all_chunks": all_c,
             "total_chunks": len(all_c),
+            "hit_chunks": len(t_chunks[tid]),
         })
     return results
 
@@ -498,19 +554,101 @@ def build_output(target, threads, parsed, siblings=None) -> str:
 
     return "\n".join(lines)
 
+# ── Analysis Engine ────────────────────────────────────────────────
+
+def generate_analysis(query: str, threads: list[dict], target: dict | None,
+                      siblings: list[dict]) -> dict[str, Any]:
+    """Generate structured analysis using co-occurrence graph + community detection.
+
+    Replaced the old rule-based version with the new analyze_topic module.
+    """
+    # Collect all threads
+    all_threads = list(threads)
+    if target:
+        all_threads.insert(0, target)
+    all_threads.extend(siblings)
+
+    # Deduplicate by tid
+    seen_tids: set[str] = set()
+    unique_threads: list[dict] = []
+    for tr in all_threads:
+        tid = str(tr.get("tid", ""))
+        if tid in seen_tids:
+            continue
+        seen_tids.add(tid)
+        unique_threads.append(tr)
+
+    # Convert threads to the format expected by analyze_topic
+    retriever_posts = []
+    for tr in unique_threads:
+        info = tr.get("info", {})
+        # Collect all chunks' text for entity extraction
+        chunks = tr.get("filtered_chunks") or tr.get("all_chunks") or []
+        chunk_texts = []
+        for c in chunks:
+            text = str(c.get("text", ""))
+            if text:
+                chunk_texts.append(text)
+
+        post = {
+            "tid": str(tr.get("tid", info.get("tid", ""))),
+            "title": str(info.get("title", "")),
+            "board": str(info.get("board", "")),
+            "text": "\n".join(chunk_texts) if chunk_texts else str(info.get("title", "")),
+            "author": str(info.get("author", "")),
+            "date": str(info.get("date", "")),
+            "url": str(info.get("url", "")),
+        }
+        retriever_posts.append(post)
+
+    from search_chexie import BOARD_WEIGHTS
+
+    # Call the new analyze module
+    try:
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from scripts.analyze_topic import analyze as topic_analyze
+        _sys.path.pop(0)
+        result = topic_analyze(query, retriever_posts, BOARD_WEIGHTS)
+        return {
+            "report": result["report"],
+            "communities": result["communities"],
+            "labels": result["labels"],
+            "events": result["events"],
+            "jargons": result["jargons"],
+            "thread_count": len(unique_threads),
+        }
+    except ImportError:
+        # Fallback: simple report
+        lines = [f"【专题分析】{query}", ""]
+        for i, tr in enumerate(unique_threads[:15], 1):
+            info = tr.get("info", {})
+            lines.append(f"{i}. [{info.get('board','')}] {info.get('title','')}")
+            if info.get("url"):
+                lines.append(f"   → {info.get('url')}")
+        return {
+            "report": "\n".join(lines),
+            "thread_count": len(unique_threads),
+        }
+
+
 # ── Pipeline ─────────────────────────────────────────────────────
 
-def search_pipeline(query: str, top_k: int = 20, use_bm25: bool = False,
-                    verbose: bool = False) -> dict:
+def search_pipeline(query: str, top_k: int = 20, use_bm25: bool = True,
+                    verbose: bool = False, analyze: bool = False) -> dict:
     t0 = time.time()
     result = {"query": query, "target": None, "threads": [], "output": ""}
 
     parsed = parse_query(query)
     parsed["raw"] = query
     result["parsed"] = parsed
+
+    # Dynamic query routing
+    qtype = detect_query_type(query)
+    parsed["query_type"] = qtype
     if verbose:
         y, g, l = parsed["year"], parsed["group"], parsed["location"]
-        print(f"[parse] year={y} group={g} loc={l} problem={parsed['is_problem_query']}",
+        print(f"[parse] year={y} group={g} loc={l} problem={parsed['is_problem_query']} type={qtype}",
               flush=True)
 
     target = find_target_thread(parsed)
@@ -523,28 +661,46 @@ def search_pipeline(query: str, top_k: int = 20, use_bm25: bool = False,
     if verbose:
         print(f"[expand] {len(queries)} queries", flush=True)
 
+    # Dynamic RRF routing: adjust k parameter to weight BM25 vs vector
+    # Lower k = higher weight for that source's top results
+    # exact queries: BM25 gets k=30 (boosted), vector gets k=60
+    # fuzzy queries: vector gets k=30 (boosted), BM25 gets k=80
+    # mixed: both k=60 (equal weight)
+    if qtype == "exact":
+        vec_k, bm25_k = 60, 30
+    elif qtype == "fuzzy":
+        vec_k, bm25_k = 30, 80
+    else:
+        vec_k, bm25_k = 60, 60
+
     t1 = time.time()
     all_faiss = [faiss_search(q, top_k) for q in queries]
     if verbose:
         print(f"[faiss] {time.time()-t1:.1f}s", flush=True)
 
+    # BM25 always on (auto-detect)
     t1 = time.time()
-    bm25_res = []
-    if use_bm25:
-        bm25_res = bm25_search(query, top_k * 2)
+    bm25_res = bm25_search(query, top_k * 2) if use_bm25 else []
     if verbose:
         print(f"[bm25] {time.time()-t1:.1f}s ({len(bm25_res)} results)", flush=True)
 
-    sources = all_faiss + ([bm25_res] if bm25_res else [])
-    fused = rrf_fuse(sources, k=60)
+    # RRF fusion with dynamic weights
+    # Tag each result list with its routing weight
+    fused = _rrf_fuse_weighted(
+        [(rlist, vec_k) for rlist in all_faiss]
+        + ([(bm25_res, bm25_k)] if bm25_res else []),
+    )
     if verbose:
-        print(f"[rrf] {len(fused)} unique chunks", flush=True)
+        print(f"[rrf] {len(fused)} unique chunks (type={qtype} vec_k={vec_k} bm25_k={bm25_k})", flush=True)
 
+    # Enrich metadata from full meta
     meta = load_meta()
-    by_id = {m["id"]: m for m in meta}
+    by_id = {m.get("id", str(i)): m for i, m in enumerate(meta)}
     for item in fused:
-        if "meta" not in item and item["id"] in by_id:
-            item["meta"] = by_id[item["id"]].get("meta", {})
+        if item["id"] in by_id:
+            row = by_id[item["id"]]
+            item["source"] = row.get("source", row.get("meta", {}))
+            item["meta"] = item["source"]
 
     threads = aggregate_by_thread(fused)
     result["threads"] = threads
@@ -571,7 +727,8 @@ def search_pipeline(query: str, top_k: int = 20, use_bm25: bool = False,
                 chunk_kept = filter_thread_chunks(all_c)
                 sibling_threads.append({
                     "tid": tid, "info": thread_info(all_c),
-                    "score": 1.0, "filtered_chunks": chunk_kept, "total_chunks": len(all_c),
+                    "score": 1.0, "filtered_chunks": chunk_kept,
+                    "all_chunks": all_c, "total_chunks": len(all_c),
                 })
     if verbose:
         print(f"[sibling] {len(sibling_threads)} threads", flush=True)
@@ -581,13 +738,35 @@ def search_pipeline(query: str, top_k: int = 20, use_bm25: bool = False,
     if verbose:
         print(f"[total] {result['time']}s", flush=True)
 
+    # Phase 3: Structured analysis (if requested)
+    if analyze:
+        from search_chexie import BOARD_WEIGHTS, board_weight
+        result["analysis"] = generate_analysis(query, threads, target, sibling_threads)
+        result["output"] += "\n\n" + result["analysis"]["report"]
+
     return result
+
+
+def _rrf_fuse_weighted(tagged_lists: list[tuple[list[dict], int]]) -> list[dict]:
+    """RRF fusion with per-source k parameter for dynamic routing."""
+    scores, items = defaultdict(float), {}
+    for rlist, k in tagged_lists:
+        for rank, item in enumerate(rlist):
+            cid = item["id"]
+            scores[cid] += 1.0 / (k + rank + 1)
+            if cid not in items:
+                items[cid] = item
+    ordered = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    for cid, score in ordered:
+        items[cid]["rrf_score"] = round(score, 6)
+    return [items[cid] for cid, _ in ordered]
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Chexie Knowledge Pipeline")
     ap.add_argument("query", nargs="?", help="Search query")
     ap.add_argument("--top-k", type=int, default=20)
+    ap.add_argument("--no-bm25", action="store_true", help="Disable BM25 (vector only)")
     ap.add_argument("--verbose", "-v", action="store_true")
     ap.add_argument("--interactive", "-i", action="store_true")
     args = ap.parse_args()
@@ -600,10 +779,10 @@ if __name__ == "__main__":
                 break
             if not q:
                 continue
-            r = search_pipeline(q, top_k=args.top_k, verbose=args.verbose)
+            r = search_pipeline(q, top_k=args.top_k, use_bm25=not args.no_bm25, verbose=args.verbose)
             print(r["output"])
             print(f"\n  [{r['time']}s]")
     else:
-        r = search_pipeline(args.query, top_k=args.top_k, verbose=args.verbose)
+        r = search_pipeline(args.query, top_k=args.top_k, use_bm25=not args.no_bm25, verbose=args.verbose)
         print(r["output"])
         print(f"\n  [{r['time']}s]")

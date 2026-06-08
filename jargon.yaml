@@ -1,0 +1,98 @@
+# 北大车协论坛黑话映射表
+# 格式：黑话: {explain: 标准解释, search_expand: 搜索扩展词列表}
+# search_expand 用于 FTS5 搜索时自动扩展查询
+
+jargons:
+  押后:
+    explain: "随行修车员，负责处理骑行中的车辆故障（补胎/调变速/刹车）"
+    search_expand: ["押后", "修车", "补胎", "扒胎", "调变速"]
+  牵车:
+    explain: "因车辆故障或路况不佳，推着自行车步行"
+    search_expand: ["牵车", "推车"]
+  留口:
+    explain: "在路口/岔路停留，为后方队友指引方向"
+    search_expand: ["留口", "指路", "路口", "等后旗"]
+  放坡:
+    explain: "长下坡骑行，速度较快，需要控制车速"
+    search_expand: ["放坡", "下坡", "溜坡"]
+  拿龙:
+    explain: "调整车轮辐条张力以校正轮圈偏摆"
+    search_expand: ["拿龙", "调圈", "偏摆", "龙跳", "校轮"]
+  前站:
+    explain: "提前出发的先锋队员，负责安排食宿、探路"
+    search_expand: ["前站", "打前站", "先遣"]
+  后旗:
+    explain: "骑行队伍最后方收尾的队员，确保无人掉队"
+    search_expand: ["后旗", "收尾", "收队"]
+  前旗:
+    explain: "骑行队伍最前方的领骑队员，控制速度与路线"
+    search_expand: ["前旗", "领骑", "带队"]
+  回炉:
+    explain: "重新参加培训/考核（未能通过上一次）"
+    search_expand: ["回炉", "重修", "补考"]
+  春训:
+    explain: "春季训练营，为期数周的系统体能训练"
+    search_expand: ["春训", "春季训练"]
+  出摊:
+    explain: "协会在固定地点出摊开展修车服务/教学"
+    search_expand: ["出摊", "修车摊", "义务修车"]
+  检车:
+    explain: "出发前检查车辆安全状况（刹车/胎压/变速）"
+    search_expand: ["检车", "检查车辆"]
+  绑包:
+    explain: "用弹力绳/捆扎带固定驮包或行李"
+    search_expand: ["绑包", "捆扎", "固定行李"]
+  夜路:
+    explain: "夜间骑行，需要车灯照明"
+    search_expand: ["夜路", "夜骑"]
+  雨骑:
+    explain: "雨中骑行"
+    search_expand: ["雨骑", "雨天骑行"]
+  放山:
+    explain: "从山顶放坡下山，连续长下坡"
+    search_expand: ["放山", "下山"]
+  拉练:
+    explain: "协会组织的骑行训练活动（单日/双日）"
+    search_expand: ["拉练", "骑行活动"]
+  双日:
+    explain: "两天一夜的拉练活动，含住宿"
+    search_expand: ["双日", "两天"]
+  单日:
+    explain: "当天往返的拉练活动"
+    search_expand: ["单日", "一天"]
+  前助:
+    explain: "前旗的助手，协助领队管理队伍"
+    search_expand: ["前助"]
+  队医:
+    explain: "随行医疗保障员，处理擦伤/中暑/抽筋等"
+    search_expand: ["队医", "医疗", "急救", "清创"]
+  押后包:
+    explain: "押后携带的工具包（含内胎/扒胎棒/打气筒等）"
+    search_expand: ["押后包", "工具包", "修车工具"]
+  队医包:
+    explain: "队医携带的急救包（含清创水/碘伏/创可贴/敷贴）"
+    search_expand: ["队医包", "急救包", "药品"]
+  摔车:
+    explain: "骑行中发生摔倒事故"
+    search_expand: ["摔车", "摔倒", "事故"]
+  扎胎:
+    explain: "轮胎被尖锐物刺穿导致漏气"
+    search_expand: ["扎胎", "爆胎", "漏气", "蛇咬"]
+  蹭碟:
+    explain: "刹车碟片与刹车块摩擦产生异响或阻力"
+    search_expand: ["蹭碟", "刹车异响"]
+  体力不支:
+    explain: "因体力不足无法跟上队伍节奏"
+    search_expand: ["体力不支", "跟不上", "掉队"]
+  走错路:
+    explain: "队伍在骑行中偏离预定路线"
+    search_expand: ["走错路", "迷路", "偏航"]
+  集合迟到:
+    explain: "未在规定集合时间到达出发地点"
+    search_expand: ["迟到", "未按时集合"]
+  拖沓:
+    explain: "在休息点/集合点出发拖延，影响整体进度"
+    search_expand: ["拖沓", "磨蹭", "耽误时间"]
+  夜路:
+    explain: "天黑后仍在骑行，视线不佳需车灯"
+    search_expand: ["夜路", "夜骑", "天黑"]

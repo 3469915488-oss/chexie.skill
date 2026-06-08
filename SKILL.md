@@ -158,6 +158,28 @@ python scripts/search_chexie.py --pipeline "25双日白河A组出现了什么问
 每条结果都带原文链接。内容过滤自动去除致谢、个人夸赞、照片列表等噪声，
 只保留问题描述、解决方案和反思。
 
+### 模式C：FTS5 实体搜索（--fts5）
+
+适用于**按人物/时间窗口定位帖子**（"dudu说了什么""温瑶在追责帖里怎么回应的"）。
+直接查询 SQLite FTS5 数据库，用 SQL LIKE 匹配，解决 FAISS 语义搜索无法做
+"实体+事件+时间窗口"交叉定位的问题。
+
+```bash
+# 搜某人在某时间段的所有帖子
+python scripts/search_chexie.py --fts5 --author dudu --time-start 2025-05-20 --time-end 2025-05-30
+
+# 搜某关键词在某版面的帖子
+python scripts/search_chexie.py --fts5 "分团" --board 行者足音 --time-start 2025-05-01
+
+# 组合：某人 + 关键词
+python scripts/search_chexie.py --fts5 "两团 团长" --author 温瑶
+```
+
+**自动合并**：模式A/B 的搜索结果会自动调用 FTS5 做补充检索（`_fts5_supplement`）
+和同帖扩展（`_thread_expand`），不需要手动加 `--fts5`。当查询中包含已知人物 ID
+（如 dudu、温瑶、劳模等）时，系统会自动在 FAISS 已找到的帖子中拉取这些人物的
+其他楼层。
+
 ### 选择原则
 
 | 问题类型 | 使用模式 | 原因 |
@@ -165,6 +187,7 @@ python scripts/search_chexie.py --pipeline "25双日白河A组出现了什么问
 | "报名费多少""体测标准""路线里程" | A（快速搜索） | 事实性查询，单段即可回答 |
 | "出了什么问题""怎么解决的""有什么教训" | B（深度管线） | 需要全量帖子+跨段聚合 |
 | "A组和B组谁的问题更多""往年怎么处理的" | B（深度管线） | 需要横向对比多个帖子 |
+| "dudu说了什么""温瑶怎么回应的" | C（FTS5）或自动合并 | 需要按人物精确定位 |
 
 ### top-k 调优
 

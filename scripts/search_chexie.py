@@ -4,8 +4,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
+import sqlite3
 from typing import Any
 
 import faiss
@@ -25,6 +27,16 @@ MODEL_PATH = Path(_DEFAULT_MODEL_DIR) / (
     "models--BAAI--bge-small-zh-v1.5/"
     "snapshots/7999e1d3359715c523056ef9478215996d62a620"
 )
+FTS5_DB_PATH = ROOT / "chexie_fts.db"
+
+# Known author IDs for FTS5 entity search
+KNOWN_AUTHORS = [
+    'dudu', '劳模', '温瑶', '小仓鼠', '蓝', '牛肉汤圆', '栖风',
+    '秋小果', '问道', '月霜', '踏月', '小瓜', '华年', '森云',
+    '小笨熊', '游乐', '六三', '飞舟', '河虾', '橘猫', '上线',
+    '伯约', '沐阳', '烟火', '碧瞳', '壹乙', '德克士',
+]
+
 QUERY_INSTRUCTION = "为这个句子生成表示以用于检索相关文章："
 
 # === Board weights for authority-aware ranking ===
@@ -222,6 +234,209 @@ def keyword_boost(query: str, row: dict[str, Any]) -> float:
     return min(boost, 0.45)
 
 
+def fts5_search(
+    keywords: list[str] | None = None,
+    author: str | None = None,
+    time_start: str | None = None,
+    time_end: str | None = None,
+    board: str | None = None,
+    limit: int = 30,
+) -> list[dict[str, Any]]:
+    """Search chexie_fts.db using SQL LIKE for robust keyword/author matching.
+
+    Solves the problem where FTS5 MATCH fails on English tokens (e.g. 'dudu')
+    and FAISS semantic search cannot do entity+time-window cross-location.
+    """
+    if not FTS5_DB_PATH.exists():
+        return []
+
+    conn = sqlite3.connect(str(FTS5_DB_PATH))
+    cursor = conn.cursor()
+
+    conditions: list[str] = []
+    params: list = []
+
+    if author:
+        conditions.append('author = ?')
+        params.append(author)
+    if board:
+        conditions.append('board = ?')
+        params.append(board)
+    if keywords:
+        kw_parts = []
+        for kw in keywords:
+            kw_parts.append('text LIKE ?')
+            params.append(f'%{kw}%')
+        conditions.append('(' + ' OR '.join(kw_parts) + ')')
+
+    if time_start:
+        # Use SQL LIKE to narrow to approximate time range
+        # If range spans multiple years, use just the year prefix
+        if time_end and time_start[:4] != time_end[:4]:
+            # Multi-year range: match either year
+            ys = time_start[:4]
+            ye = time_end[:4]
+            conditions.append('(text LIKE ? OR text LIKE ?)')
+            params.extend([f'%{ys}%', f'%{ye}%'])
+        else:
+            ym = time_start[:7]  # e.g. "2025-05"
+            conditions.append('text LIKE ?')
+            params.append(f'%{ym}%')
+    
+    where = ' AND '.join(conditions) if conditions else '1=1'
+    query_sql = f"SELECT chunk_id, title, board, author, text FROM fts5_index WHERE {where} LIMIT ?"
+    params.append(limit)
+
+    try:
+        cursor.execute(query_sql, params)
+        rows = cursor.fetchall()
+    except Exception:
+        conn.close()
+        return []
+    conn.close()
+
+    results: list[dict[str, Any]] = []
+    for row in rows:
+        chunk_id, title, board_val, author_val, text = row
+
+        # Post-filter by time range
+        times = re.findall(r'20\d{2}-\d{2}-\d{2}', text[:500])
+        if time_start and times and max(times) < time_start:
+            continue
+        if time_end and times and min(times) > time_end:
+            continue
+
+        # Parse source from chunk_id
+        bid, tid = 1, 0
+        for p in chunk_id.split('_'):
+            if p.startswith('bid'):
+                try: bid = int(p[3:])
+                except: pass
+            elif p.startswith('tid'):
+                try: tid = int(p[3:])
+                except: pass
+
+        time_match = re.search(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', text[:500])
+        post_time = time_match.group(1) if time_match else ''
+        floor_match = re.search(r'第(\d+)楼', text[:500])
+        floor = floor_match.group(1) if floor_match else '?'
+
+        source = {
+            'bid': bid, 'tid': tid, 'board': board_val, 'author': author_val,
+            'title': title, 'floor': floor, 'post_time': post_time,
+            'url': f'https://www.chexie.net/bbs/content/index.php?bid={bid}&tid={tid}&p=1#第{floor}楼',
+        }
+        results.append({
+            'chunk_id': chunk_id, 'text': text, 'source': source,
+            'score': 0.0, 'rerank_score': 0.55,
+        })
+
+    return results
+
+
+def _fts5_supplement(query: str, existing: list[dict], top_k: int) -> list[dict[str, Any]]:
+    """Auto-extract keywords and authors from query, run FTS5 LIKE search."""
+    author_hints = [a for a in KNOWN_AUTHORS if a in query]
+    EVENT_HINTS = ['分团', '两团', '三团', '挂人', '团长', '理事会',
+                   '暑期', '春训', '互评', '陇青', '命运', '应带尽带',
+                   '温瑶', '小仓鼠', '牛肉汤圆', '追究', '处罚']
+    kw_hints = [kw for kw in EVENT_HINTS if kw in query]
+    # If query mentions specific people, add them as keywords too
+    # But skip if that person is already being used as an author filter
+    for a in KNOWN_AUTHORS:
+        if a in query and a not in kw_hints and a not in author_hints:
+            kw_hints.append(a)
+    if not author_hints and not kw_hints:
+        return []
+
+    all_results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    is_25_event = '25' in query or '分团' in query
+    t_start = '2025-05-01' if is_25_event else None
+    t_end = '2026-06-30' if is_25_event else None
+
+    for author in (author_hints or [None]):
+        fts_results = fts5_search(
+            keywords=kw_hints if kw_hints else None,
+            author=author, time_start=t_start, time_end=t_end, limit=30,
+        )
+        for r in fts_results:
+            if r['chunk_id'] not in seen:
+                seen.add(r['chunk_id'])
+                all_results.append(r)
+
+    return all_results[:top_k]
+
+
+def _thread_expand(query: str, existing: list[dict], top_k: int) -> list[dict[str, Any]]:
+    """For threads already found by FAISS, pull posts by other key authors in the same thread.
+    
+    Example: FAISS finds 劳模's post in tid=9015. _thread_expand then searches for
+    温瑶, 问道, 栖风 etc. in tid=9015, even if their posts don't contain the query keywords.
+    """
+    if not FTS5_DB_PATH.exists():
+        return []
+    
+    # Collect tids from FAISS results
+    faiss_tids: set[int] = set()
+    for item in existing[:15]:  # Only expand from top FAISS results
+        src = item.get('source', {})
+        tid = src.get('tid')
+        if tid and isinstance(tid, int) and tid > 0:
+            faiss_tids.add(tid)
+    
+    if not faiss_tids:
+        return []
+    
+    # Find authors mentioned in query
+    query_authors = [a for a in KNOWN_AUTHORS if a in query]
+    if not query_authors:
+        return []
+    
+    conn = sqlite3.connect(str(FTS5_DB_PATH))
+    cursor = conn.cursor()
+    
+    results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    
+    for tid in faiss_tids:
+        tid_pattern = f'_tid{tid}_'
+        for author in query_authors:
+            try:
+                cursor.execute(
+                    "SELECT chunk_id, title, board, author, text FROM fts5_index "
+                    "WHERE chunk_id LIKE ? AND author = ? LIMIT 10",
+                    (f'%{tid_pattern}%', author)
+                )
+                rows = cursor.fetchall()
+            except Exception:
+                continue
+            
+            for row in rows:
+                chunk_id, title, board_val, author_val, text = row
+                if chunk_id in seen:
+                    continue
+                seen.add(chunk_id)
+                
+                time_match = re.search(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', text[:500])
+                post_time = time_match.group(1) if time_match else ''
+                floor_match = re.search(r'第(\d+)楼', text[:500])
+                floor = floor_match.group(1) if floor_match else '?'
+                
+                source = {
+                    'bid': 1, 'tid': tid, 'board': board_val, 'author': author_val,
+                    'title': title, 'floor': floor, 'post_time': post_time,
+                    'url': f'https://www.chexie.net/bbs/content/index.php?bid=1&tid={tid}&p=1#第{floor}楼',
+                }
+                results.append({
+                    'chunk_id': chunk_id, 'text': text, 'source': source,
+                    'score': 0.0, 'rerank_score': 0.58,  # Slightly above FTS5 base
+                })
+    
+    conn.close()
+    return results[:top_k]
+
+
 def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, Any]:
     index, meta, model = resources()
     if candidate_k is None:
@@ -264,6 +479,28 @@ def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, 
 
     ranked.sort(key=lambda item: item["rerank_score"], reverse=True)
     ranked = merge_exact_event_hits(query, ranked, meta, top_k)
+
+    # ── FTS5 LIKE merge: supplement results that FAISS misses ──
+    fts5_results = _fts5_supplement(query, ranked, top_k)
+    # Also do thread-based expansion: pull other authors from FAISS-found threads
+    thread_results = _thread_expand(query, ranked, top_k)
+    all_supplements = fts5_results + thread_results
+    if all_supplements:
+        existing_keys = {
+            (str(item['source'].get('board') or ''),
+             str(item['source'].get('tid') or ''),
+             str(item['source'].get('floor') or ''))
+            for item in ranked
+        }
+        for fts_item in all_supplements:
+            key = (str(fts_item['source'].get('board') or ''),
+                   str(fts_item['source'].get('tid') or ''),
+                   str(fts_item['source'].get('floor') or ''))
+            if key not in existing_keys:
+                ranked.append(fts_item)
+                existing_keys.add(key)
+        ranked.sort(key=lambda item: item['rerank_score'], reverse=True)
+
     return {
         "question": query,
         "model": MODEL_NAME,
@@ -408,11 +645,34 @@ def main() -> None:
                         help="Generate structured topic analysis (powers --pipeline)")
     parser.add_argument("--bm25", action="store_true",
                         help="Enable BM25 keyword search (requires ~15s init)")
+    parser.add_argument("--fts5", action="store_true",
+                        help="Use FTS5 SQLite LIKE search (author/keyword/time)")
+    parser.add_argument("--author", type=str, help="Author filter for --fts5")
+    parser.add_argument("--time-start", type=str, help="Time start for --fts5 (YYYY-MM-DD)")
+    parser.add_argument("--time-end", type=str, help="Time end for --fts5 (YYYY-MM-DD)")
+    parser.add_argument("--board", type=str, help="Board filter for --fts5")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
     # Auto-detect analyze for question-type queries
     qtype = detect_query_type(args.query or "")
+
+    if args.fts5:
+        keywords = [args.query] if args.query else None
+        results = fts5_search(
+            keywords=keywords, author=args.author,
+            time_start=args.time_start, time_end=args.time_end,
+            board=args.board, limit=args.top_k or 30,
+        )
+        if args.json:
+            print(json.dumps(results, ensure_ascii=False, indent=2))
+        else:
+            for i, r in enumerate(results, 1):
+                src = r['source']
+                print(f'[{i}] {src["board"]} | {src["title"][:40]} | {src["author"]} | 第{src["floor"]}楼 | {src["post_time"]}')
+                print(f'    {r["text"][:300]}')
+                print()
+        return
 
     if args.pipeline or args.analyze or qtype in ("fuzzy", "mixed"):
         from pipeline import search_pipeline

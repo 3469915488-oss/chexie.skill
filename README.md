@@ -267,7 +267,10 @@ chexie.skill/
 │   ├── search_fts5.py        # FTS5 搜索模块
 │   ├── cooccur_graph.py      # 共现图 + 社区发现
 │   ├── analyze_topic.py      # 话题分析引擎
+│   ├── detect_events.py      # 事件自动检测（多维度评分）
 │   └── server_search_chexie.py # 后端检索引擎
+├── tests/
+│   └── smoke_test.py         # 冒烟测试（5 场景）
 ├── entities/                 # 实体映射数据（运行时生成）
 ├── references/
 │   ├── answer-format.md      # 回答模板与纪律
@@ -279,6 +282,28 @@ chexie.skill/
 ---
 
 ## 版本历史
+
+### v3.2（2026-06-08）— 工程一致性 + 生成纪律
+
+**工程一致性修复**（基于外部 code review 反馈）：
+
+- **版本事实统一**：SKILL.md、AGENTS.md、install.py、README.md 全部对齐到 v3.0.0 数据、BGE 模型、五大版块 13.8 万条
+- **install.py 重写**：新增 `copy_scripts()` 自动复制检索脚本到安装目录；验证路径修正为 `scripts/search_chexie.py`；REQUIRED_FILES 补充 `chexie_fts.db`
+- **--info 友好降级**：faiss/numpy/sentence_transformers 改为延迟导入，`--info` 在缺依赖时也能输出索引状态（文件数、大小、FTS5 记录数、依赖检测结果）
+- **默认路由收紧**：`detect_query_type()` 默认从 `"mixed"` 改为 `"exact"`，普通查询走快速搜索而非 pipeline
+- **pipeline.py 清理**：删除 inline sys.path hack，顶部统一设置
+- **新增 smoke test**：`tests/smoke_test.py` 覆盖 --info / 快速搜索 / FTS5 / pipeline / JSON 五个场景
+
+**生成纪律升级**（防止模型把多个正确证据混合成不准确叙述）：
+
+- **身份重写**：「资深决策顾问」→「证据整理员」，铁律"先不敢编，再分析"
+- **四阶段生成流程**：事实抽取 → 证据绑定 → 答案生成 → 自检(verifier)
+- **强制 source_id 绑定**：人名、年份、团/组/路线、职务、因果关系、制度变化——出现就必须有 `bid{N}_tid{N}_floor{N}` 标识
+- **事件索引降级为二手材料**：`events/*.yaml` 只能用于定位帖子，事实细节必须回到原帖 chunk
+- **chunk 输入规范**：去重（tid+floor+author）、限流（同帖最多 5 楼层）、元数据前置
+- **自检步骤**：unsupported 删除、conflict 标注、secondary_source 替换为一手
+- **prompts/*.yaml 全部重写**：三个模板（默认分析/争议分析/简洁总结）均含四阶段格式
+- **search_chexie.py 新增 source_id 字段**：FAISS 和 FTS5 两条搜索路径均输出稳定的 `bid{N}_tid{N}_floor{N}` 标识
 
 ### v3.1（2026-06-08）— 结构化事件索引
 

@@ -10,10 +10,6 @@ from pathlib import Path
 import sqlite3
 from typing import Any
 
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
-
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
@@ -111,7 +107,10 @@ def load_meta(path: Path = META_PATH) -> list[dict[str, Any]]:
 
 
 @lru_cache(maxsize=1)
-def resources() -> tuple[Any, list[dict[str, Any]], SentenceTransformer]:
+def resources() -> tuple[Any, list[dict[str, Any]], Any]:
+    import faiss
+    import numpy as np
+    from sentence_transformers import SentenceTransformer
     index = faiss.read_index(str(INDEX_PATH))
     meta = load_meta()
     model_ref = str(MODEL_PATH) if MODEL_PATH.exists() else MODEL_NAME
@@ -120,8 +119,9 @@ def resources() -> tuple[Any, list[dict[str, Any]], SentenceTransformer]:
 
 
 @lru_cache(maxsize=1)
-def title_resources() -> tuple[Any, list[dict[str, Any]], SentenceTransformer] | None:
+def title_resources() -> tuple[Any, list[dict[str, Any]], Any] | None:
     """Load title index + meta. Returns None if not yet built."""
+    import faiss
     if not TITLE_INDEX_PATH.exists() or not TITLE_META_PATH.exists():
         return None
     t_idx = faiss.read_index(str(TITLE_INDEX_PATH))
@@ -170,7 +170,7 @@ def detect_query_type(query: str) -> str:
         return "exact"
     if fuzzy_score > 0:
         return "fuzzy"
-    return "mixed"  # default
+    return "exact"  # default
 
 
 def board_weight(source: dict[str, Any]) -> float:
@@ -327,6 +327,7 @@ def fts5_search(
             'url': f'https://www.chexie.net/bbs/content/index.php?bid={bid}&tid={tid}&p=1#第{floor}楼',
         }
         results.append({
+            'source_id': f'bid{bid}_tid{tid}_floor{floor}',
             'chunk_id': chunk_id, 'text': text, 'source': source,
             'score': 0.0, 'rerank_score': 0.55,
         })
@@ -438,6 +439,7 @@ def _thread_expand(query: str, existing: list[dict], top_k: int) -> list[dict[st
 
 
 def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, Any]:
+    import numpy as np
     index, meta, model = resources()
     if candidate_k is None:
         candidate_k = max(top_k * 30, 150)
@@ -467,8 +469,14 @@ def search(query: str, top_k: int, candidate_k: int | None = None) -> dict[str, 
             continue
         seen_sources.add(source_key)
         boost = keyword_boost(query, row)
+        # Construct stable source_id
+        bid = source.get("bid", 0)
+        tid = source.get("tid", 0)
+        floor = source.get("floor", 0)
+        source_id = f"bid{bid}_tid{tid}_floor{floor}"
         ranked.append(
             {
+                "source_id": source_id,
                 "id": row.get("id") or idx,
                 "score": float(score),
                 "rerank_score": float(score) + boost,
@@ -577,20 +585,49 @@ def merge_exact_event_hits(
 
 
 def info() -> dict[str, Any]:
-    meta_count = 0
-    if META_PATH.exists():
-        with META_PATH.open("r", encoding="utf-8") as f:
-            meta_count = sum(1 for line in f if line.strip())
-    index_size = INDEX_PATH.stat().st_size if INDEX_PATH.exists() else 0
-    return {
+    """Print index status. Works WITHOUT faiss/sentence_transformers."""
+    result: dict[str, Any] = {
         "root": str(ROOT),
-        "index": str(INDEX_PATH),
-        "meta": str(META_PATH),
         "model": MODEL_NAME,
-        "meta_count": meta_count,
-        "index_bytes": index_size,
-        "ready": INDEX_PATH.exists() and META_PATH.exists() and meta_count > 0,
     }
+    if META_PATH.exists():
+        count = sum(1 for line in META_PATH.open("r", encoding="utf-8") if line.strip())
+        result["count"] = count
+        result["meta_size_mb"] = round(META_PATH.stat().st_size / 1024 / 1024, 1)
+    else:
+        result["count"] = 0
+        result["error"] = "faiss_meta.jsonl not found"
+
+    if INDEX_PATH.exists():
+        result["index_size_mb"] = round(INDEX_PATH.stat().st_size / 1024 / 1024, 1)
+    else:
+        result["error"] = result.get("error", "") + "; faiss_index.bin not found"
+
+    if FTS5_DB_PATH.exists():
+        result["fts5_size_mb"] = round(FTS5_DB_PATH.stat().st_size / 1024 / 1024, 1)
+        try:
+            conn = sqlite3.connect(str(FTS5_DB_PATH))
+            cur = conn.execute("SELECT COUNT(*) FROM fts5_index")
+            result["fts5_count"] = cur.fetchone()[0]
+            conn.close()
+        except Exception:
+            pass
+    else:
+        result["fts5"] = "not found"
+
+    if TITLE_INDEX_PATH.exists():
+        result["title_index"] = "present"
+
+    deps_ok = True
+    for mod in ("faiss", "numpy", "sentence_transformers"):
+        try:
+            __import__(mod)
+        except ImportError:
+            deps_ok = False
+            break
+    result["dependencies"] = "ok" if deps_ok else "missing (pip install -r requirements.txt)"
+
+    return result
 
 
 def fix_url(source: dict[str, Any]) -> str:
@@ -654,6 +691,11 @@ def main() -> None:
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
+    # --info: lightweight, no heavy deps needed
+    if args.info:
+        print(json.dumps(info(), ensure_ascii=False, indent=2))
+        return
+
     # Auto-detect analyze for question-type queries
     qtype = detect_query_type(args.query or "")
 
@@ -687,9 +729,6 @@ def main() -> None:
         print(f"\n  [{result['time']}s]")
         return
 
-    if args.info:
-        print(json.dumps(info(), ensure_ascii=False, indent=2))
-        return
     if not args.query:
         parser.error("query required unless --info")
 

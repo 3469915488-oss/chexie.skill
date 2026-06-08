@@ -14,10 +14,13 @@ import argparse
 import json
 import os
 import re
+import sys as _sys
 import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import faiss
 import jieba
@@ -605,10 +608,7 @@ def generate_analysis(query: str, threads: list[dict], target: dict | None,
 
     # Call the new analyze module
     try:
-        import sys as _sys
-        _sys.path.insert(0, str(Path(__file__).resolve().parent))
-        from scripts.analyze_topic import analyze as topic_analyze
-        _sys.path.pop(0)
+        from analyze_topic import analyze as topic_analyze
         result = topic_analyze(query, retriever_posts, BOARD_WEIGHTS)
         return {
             "report": result["report"],

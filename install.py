@@ -25,9 +25,9 @@ from pathlib import Path
 
 GITHUB_RELEASE = (
     "https://github.com/3469915488-oss/chexie.skill/"
-    "releases/download/v2.0.0-pipeline/chexie_data.tar.gz"
+    "releases/download/v3.0.0/chexie_data.tar.gz"
 )
-REQUIRED_FILES = ["faiss_index.bin", "faiss_meta.jsonl"]
+REQUIRED_FILES = ["faiss_index.bin", "faiss_meta.jsonl", "chexie_fts.db"]
 
 
 def default_root() -> Path:
@@ -107,6 +107,22 @@ def download_data(root: Path) -> bool:
             print(f"  请手动解压: {tarball}")
         return False
 
+    return True
+
+
+def copy_scripts(root: Path) -> bool:
+    """Copy scripts/ directory to install root."""
+    src = Path("scripts")
+    dst = root / "scripts"
+    if not src.exists():
+        print("  ⚠ 未找到 scripts/ 目录（需要从项目仓库运行 install.py）")
+        return False
+    print_step("复制检索脚本...")
+    dst.mkdir(parents=True, exist_ok=True)
+    for f in src.iterdir():
+        if f.is_file() and f.suffix == ".py":
+            shutil.copy2(f, dst / f.name)
+    print(f"  ✓ 已复制 {sum(1 for f in dst.iterdir() if f.suffix == '.py')} 个脚本")
     return True
 
 
@@ -195,7 +211,7 @@ def print_env_guide(root: Path) -> None:
         print(f'  export CHEXIE_MODEL_DIR="/path/to/models"')
     print()
     print("  验证安装:")
-    print(f"    python {root / 'search_chexie.py'} --info")
+    print(f"    python {root / 'scripts' / 'search_chexie.py'} --info")
 
 
 def main() -> None:
@@ -240,6 +256,9 @@ def main() -> None:
     if not args.skip_data:
         if not download_data(root):
             sys.exit(1)
+
+    # 2.5. 复制脚本
+    copy_scripts(root)
 
     # 3. 构建 BM25
     if not args.no_bm25:

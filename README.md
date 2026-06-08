@@ -138,6 +138,35 @@ python scripts/search_chexie.py "春训时间" --top-k 5 --json
 
 三段可配置的 LLM prompt 模板，控制分析输出的风格和深度。支持默认分析、争议深入分析、简洁总结三种模式。
 
+### 结构化事件索引（`events/*.yaml`）
+
+14 个历史争议事件的结构化索引（2011-2026），每个事件包含：
+- **概述**：事件背景与核心争议
+- **阶段时间线**：事件发展的关键节点
+- **核心帖子**：相关论坛帖子链接（tid、标题、URL）
+- **关键词**：搜索与分类用
+- **关键人物**：事件参与者及其立场
+- **各方立场**：支持/反对/中间三方的观点
+- **关联事件**：与其他事件的联系
+
+**事件列表**：
+1. 2011-版主争议事件
+2. 2013-纪律争论事件
+3. 2013-甘道夫封禁控诉事件
+4. 2016-金万琳作弊处罚事件
+5. 2017-主席团批评文体部长事件
+6. 2018-取消师徒制事件
+7. 2018-破风致歉事件
+8. 2024-反对 bbzb 事件
+9. 2025-暑期分团事件
+10. 2026-劳模制度批评帖事件
+11. 2026-模式口拉练冲突事件
+12. 2026-押后拆夹器事件
+13. 2026-冬游特批事件
+14. 2026-冬游C组押后任命事件
+
+这些索引用于快速定位历史争议事件的完整脉络，避免重复检索。
+
 ---
 
 ## 安装
@@ -181,6 +210,21 @@ chexie.skill/
 │   ├── analyze_default.yaml      # 默认分析 prompt
 │   ├── analyze_controversy.yaml  # 争议深入分析 prompt
 │   └── summarize_topic.yaml     # 简洁总结 prompt
+├── events/                   # 结构化事件索引（14个）
+│   ├── 2011-moderator-dispute.yaml
+│   ├── 2013-discipline-debate.yaml
+│   ├── 2013-gandalf-ban-protest.yaml
+│   ├── 2016-spring-training-cheating.yaml
+│   ├── 2017-chairman-criticizes-minister.yaml
+│   ├── 2018-cancel-apprenticeship.yaml
+│   ├── 2018-pofeng-apology.yaml
+│   ├── 2024-anti-bbzb.yaml
+│   ├── 2025-team-split.yaml
+│   ├── 2026-laomo-institutional-critique.yaml
+│   ├── 2026-moshikou-conflict.yaml
+│   ├── 2026-rear-guard-parts-incident.yaml
+│   ├── 2026-winter-trip-exception.yaml
+│   └── 2026-winter-trip-rear-guard.yaml
 ├── requirements.txt          # Python 依赖
 ├── scripts/
 │   ├── search_chexie.py      # 主入口（搜索 + 管线 + 分析）
@@ -205,6 +249,18 @@ chexie.skill/
 ---
 
 ## 版本历史
+
+### v3.1（2026-06-08）— 结构化事件索引
+
+- **新增 14 个历史争议事件的结构化索引**（`events/*.yaml`）
+  - 覆盖 2011-2026 年的重要争议事件
+  - 每个事件包含：概述、阶段时间线、核心帖子链接、关键词、关键人物、各方立场、关联事件
+- **SKILL.md 增强**：
+  - 添加完整的角色定位和背景认知章节
+  - 详细阐述协会组织架构（理事会→主席团→执委会→各部门）
+  - 描述 6 大核心制度体系（训练、技术、拉练、暑期、师徒、论坛）
+  - 明确 5 个分析视角（制度、历史、组织、人性、传承）
+- **用途**：快速定位历史争议事件的完整脉络，避免重复检索
 
 ### v3.0（2026-06-08）— 融合检索 + 专题分析
 
